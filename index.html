@@ -1520,7 +1520,7 @@
     async function handleQuickPassAndSubmit() {
       playBeep(880, 'sine', 0.1);
       
-      // กำหนดให้ทุกข้อใน Checklist เป็น PASS อัตโนมัติ
+      // กำหนดให้ทุกข้อใน Checklist เป็น PASS
       HOTSPOTS_DATA[vehicleMode].forEach(spot => {
         spot.isCompleted = true;
         spot.questions.forEach(q => {
@@ -1533,43 +1533,100 @@
       const driverName = registeredDriver ? registeredDriver.name : 'นายทวีศักดิ์ คำปก';
       const driverPlate = registeredDriver ? registeredDriver.plate : '70-8899 กทม.';
 
-      const { value: odoValue } = await Swal.fire({
-        title: 'สรุปและส่งบันทึกตรวจสภาพประจำวัน',
-        html: `
-          <div class="text-left font-mono text-xs text-slate-300 space-y-2.5 mt-2">
-            <div class="p-2.5 rounded-lg bg-emerald-950/40 border border-emerald-500/40 text-emerald-300">
-              ✅ <b>ผลตรวจทั่วไป:</b> ปกติสมบูรณ์ทุกรายการ (พร้อมใช้งาน)
+      // รวบรวมรายการตรวจทั้งหมดเพื่อแสดงให้พนักงานตรวจสอบ
+      let itemsListHtml = '';
+      HOTSPOTS_DATA[vehicleMode].forEach(spot => {
+        itemsListHtml += `
+          <div class="mb-2">
+            <div class="text-[11px] font-bold text-amber-300 border-b border-slate-700 pb-0.5 mb-1 flex justify-between">
+              <span>📍 ${spot.name}</span>
+              <span class="text-[10px] text-cyan-400 font-mono">${spot.short}</span>
             </div>
-            <p>👤 พนักงานขับรถ: <b>${driverName}</b></p>
-            <p>🚛 ทะเบียนรถ: <b class="text-amber-400">${driverPlate}</b></p>
+            <div class="space-y-1">
+        `;
+        spot.questions.forEach(q => {
+          itemsListHtml += `
+            <div class="flex items-center justify-between text-[10px] py-0.5 px-1.5 rounded bg-slate-900/90 border border-slate-800">
+              <span class="text-slate-300"><b class="text-cyan-400 font-mono">[ข้อ ${q.no}]</b> ${q.text}</span>
+              <span class="text-emerald-400 font-bold ml-2 whitespace-nowrap">✓ ปกติ</span>
+            </div>
+          `;
+        });
+        itemsListHtml += `</div></div>`;
+      });
+
+      const { value: formValues } = await Swal.fire({
+        title: 'ตรวจสอบรายการตรวจสภาพรถทั้งหมด',
+        html: `
+          <div class="text-left font-mono text-xs text-slate-300 space-y-2.5 mt-1">
+            <div class="flex justify-between items-center bg-slate-900 p-2 rounded-lg border border-cyan-800/50 text-[11px]">
+              <div>
+                <span class="text-slate-400">พขร.:</span> <b class="text-white">${driverName}</b>
+              </div>
+              <div>
+                <span class="text-slate-400">ทะเบียน:</span> <b class="text-amber-400">${driverPlate}</b>
+              </div>
+            </div>
+
+            <div class="p-2 rounded-lg bg-emerald-950/40 border border-emerald-500/40 text-emerald-300 flex items-center gap-1.5">
+              <span>✅</span>
+              <span><b>ผลประเมินรวม:</b> สภาพสมบูรณ์ พร้อมออกปฏิบัติงาน</span>
+            </div>
+
+            <!-- กล่องแสดงรายการตรวจทั้งหมด Scroll ดูได้ -->
             <div>
-              <label class="block text-slate-400 mb-1">กรุณากรอกเลขไมล์ปัจจุบัน (กม.) *</label>
+              <div class="flex justify-between items-center text-[10px] text-slate-400 mb-1">
+                <span>📋 รายการตรวจมาตรฐานที่ยืนยัน (ตรวจผ่านครบทุกข้อ):</span>
+                <span class="text-cyan-400 font-bold">เลื่อนดูด้านล่าง ↓</span>
+              </div>
+              <div class="max-h-48 overflow-y-auto p-2 bg-slate-950 rounded-xl border border-slate-800 space-y-1 scrollbar-thin">
+                ${itemsListHtml}
+              </div>
+            </div>
+
+            <!-- กรอกเลขไมล์ปัจจุบัน -->
+            <div>
+              <label class="block text-slate-400 mb-1 font-bold">เลขไมล์ปัจจุบัน (กม.) *</label>
               <input id="swalQuickOdometer" type="number" placeholder="เช่น 128450" 
                 class="w-full bg-slate-900 border border-slate-700 focus:border-amber-400 rounded-lg px-2.5 py-2 text-white font-mono text-xs focus:outline-none">
             </div>
+
+            <!-- กล่องติ๊กถูกยืนยันก่อนส่ง -->
+            <label class="flex items-start gap-2 p-2 rounded-lg bg-slate-900 border border-slate-800 cursor-pointer hover:border-slate-700">
+              <input type="checkbox" id="swalConfirmCheck" class="mt-0.5 rounded text-amber-500 focus:ring-0">
+              <span class="text-[10px] text-slate-300 select-none">
+                ข้าพเจ้าได้ตรวจสอบสภาพรถ 6 ล้อตามรายการข้างต้นแล้ว ยืนยันว่าอุปกรณ์และสภาพรถอยู่ในเกณฑ์ปกติพร้อมปฏิบัติงาน
+              </span>
+            </label>
           </div>
         `,
         focusConfirm: false,
         showCancelButton: true,
-        confirmButtonText: '🚀 บันทึกและส่งตรวจทันที',
-        cancelButtonText: 'ยกเลิก',
+        confirmButtonText: '🚀 ยืนยันและส่งบันทึก',
+        cancelButtonText: 'ย้อนกลับ',
         confirmButtonColor: '#10b981',
+        cancelButtonColor: '#334155',
         background: '#0a1120',
         color: '#fff',
         preConfirm: () => {
-          const val = document.getElementById('swalQuickOdometer').value;
-          if (!val) {
+          const odo = document.getElementById('swalQuickOdometer').value;
+          const checked = document.getElementById('swalConfirmCheck').checked;
+          if (!odo) {
             Swal.showValidationMessage('กรุณากรอกเลขไมล์ปัจจุบันก่อนส่ง');
             return false;
           }
-          return val;
+          if (!checked) {
+            Swal.showValidationMessage('กรุณากดติ๊กถูกยืนยันการตรวจสอบก่อนส่ง');
+            return false;
+          }
+          return { odometer: odo };
         }
       });
 
-      if (!odoValue) return;
+      if (!formValues) return;
 
       // ส่งข้อมูลเข้าระบบ Google Apps Script ทันที
-      executeSubmissionToBackend(odoValue, 'พร้อมใช้งาน', 'ตรวจสภาพด่วนประจำวัน สภาพปกติสมบูรณ์ทุกรายการ');
+      executeSubmissionToBackend(formValues.odometer, 'พร้อมใช้งาน', 'ตรวจสภาพด่วนประจำวัน สภาพปกติสมบูรณ์ทุกรายการ (ยืนยันครบถ้วน)');
     }
 
     // --- Final Report & Submit (Modal ตรวจละเอียด) ---
