@@ -146,7 +146,7 @@
     <!-- Bottom HUD Cockpit Controller -->
     <div class="pointer-events-auto max-w-2xl w-full mx-auto hud-glass rounded-2xl p-3.5 shadow-2xl border-cyan-500/30 space-y-2.5">
       
-      <!-- Day Inspection Badge & Mode Indicator -->
+      <!-- Day Inspection Badge & Mode Indicator (ระบบปรับให้อัตโนมัติตามรอบสัปดาห์) -->
       <div id="dayInspectionBanner" class="p-2 rounded-xl border border-slate-700/80 bg-slate-900/90 flex items-center justify-between text-xs font-mono">
         <div class="flex items-center gap-2">
           <span id="dayModeDot" class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></span>
@@ -155,19 +155,18 @@
             <span id="dayModeSub" class="block text-[9px] text-slate-400">วันธรรมดา: ตรวจสภาพทั่วไป ไม่บังคับถ่ายรูป</span>
           </div>
         </div>
-        <div class="flex items-center gap-1">
-          <button id="toggleDetailedModeBtn" onclick="toggleDetailedInspectionMode()" 
-            class="px-2 py-1 rounded bg-slate-800 hover:bg-slate-700 text-cyan-300 text-[10px] border border-cyan-500/30 transition">
-            สลับโหมดตรวจละเอียด
-          </button>
+        <div id="sundayTagContainer" class="hidden">
+          <span class="px-2 py-0.5 rounded bg-amber-500/10 text-amber-400 border border-amber-500/30 text-[9px]">
+            วันหยุดประจำสัปดาห์
+          </span>
         </div>
       </div>
 
-      <!-- Quick Inspection View (สำหรับวันอังคาร-อาทิตย์ ที่รถปกติ) -->
+      <!-- Quick Inspection View (สำหรับวันอังคาร-เสาร์ และวันอาทิตย์ที่มีวิ่งงาน) -->
       <div id="quickInspectionPanel" class="space-y-2">
         <div class="p-3 rounded-xl bg-slate-950/70 border border-slate-800 text-center space-y-1">
-          <p class="text-xs text-slate-300 font-mono">สภาพรถบรรทุก 6 ล้อพร้อมใช้งานตามปกติทุกรายการหรือไม่?</p>
-          <p class="text-[10px] text-amber-400 font-mono">* วันจันทร์จะเข้าสู่โหมดตรวจละเอียดและบังคับถ่ายภาพตามรอบมาตรฐานประจำสัปดาห์</p>
+          <p id="quickInstructionText" class="text-xs text-slate-300 font-mono">สภาพรถบรรทุก 6 ล้อพร้อมใช้งานตามปกติทุกรายการหรือไม่?</p>
+          <p id="quickSubInstructionText" class="text-[10px] text-amber-400 font-mono">* ทุกวันจันทร์ระบบจะเข้าสู่โหมดตรวจละเอียดและบังคับถ่ายภาพตามรอบมาตรฐานประจำสัปดาห์</p>
         </div>
 
         <!-- 2 Main Buttons for Quick Mode -->
@@ -183,21 +182,18 @@
             class="py-3 px-3 rounded-xl bg-gradient-to-r from-rose-500 to-rose-600 hover:from-rose-400 hover:to-rose-500 text-white text-xs font-bold font-mono tracking-wide shadow-lg shadow-rose-500/20 flex flex-col items-center justify-center gap-1 transition">
             <span class="text-base">⚠️</span>
             <span>พบปัญหา / ชำรุด</span>
-            <span class="text-[9px] font-normal opacity-90">(เปิดโหมดตรวจละเอียด+ถ่ายรูป)</span>
+            <span class="text-[9px] font-normal opacity-90">(เปลี่ยนเป็นโหมดตรวจละเอียด)</span>
           </button>
         </div>
 
-        <div class="flex items-center justify-between pt-1 border-t border-slate-800/80 text-[10px] font-mono">
-          <button onclick="promptMonthlyReportModal()" class="text-amber-400 hover:text-amber-300 transition flex items-center gap-1">
-            📄 สรุปรายงานประจำเดือน (31 วัน)
-          </button>
+        <div class="flex items-center justify-end pt-1 border-t border-slate-800/80 text-[10px] font-mono">
           <button onclick="startSequentialWalkaround()" class="text-cyan-400 hover:text-cyan-300 transition flex items-center gap-1">
             🔍 หมุนตรวจโมเดล 3D
           </button>
         </div>
       </div>
 
-      <!-- Detailed Inspection View (บังคับทุกวันจันทร์ หรือ เมื่อกดปุ่มพบปัญหา) -->
+      <!-- Detailed Inspection View (ระบบเปิดให้อัตโนมัติทุกวันจันทร์ หรือ เมื่อกดปุ่มพบปัญหา) -->
       <div id="detailedInspectionPanel" class="space-y-2.5 hidden">
         <!-- Progress Bar -->
         <div class="space-y-1">
@@ -251,12 +247,9 @@
 
         <!-- Action Footer Buttons -->
         <div class="flex items-center gap-2 pt-1 border-t border-slate-700/50">
-          <button onclick="startSequentialWalkaround()" class="py-2 px-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-cyan-300 text-xs font-mono font-medium border border-cyan-600/30 flex items-center justify-center gap-1 transition" title="เดินตรวจรอบคัน 3D">
+          <button onclick="startSequentialWalkaround()" class="py-2 px-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-cyan-300 text-xs font-mono font-medium border border-cyan-600/30 flex items-center justify-center gap-1 transition" title="เดินตรวจรอบคัน 3D">
             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"></path></svg>
             <span class="hidden sm:inline">เดินตรวจ 3D</span>
-          </button>
-          <button onclick="promptMonthlyReportModal()" class="py-2 px-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-amber-300 text-xs font-mono font-medium border border-amber-500/30 flex items-center justify-center gap-1 transition" title="พิมพ์รายงานสรุป 31 วันประจำเดือน">
-            📄 สรุปรายเดือน
           </button>
           <button id="submitAuditBtn" onclick="openFinalReportModal()" class="flex-1 py-2 px-2.5 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 text-xs font-bold font-mono tracking-wide shadow-lg shadow-amber-500/20 flex items-center justify-center gap-1.5 transition">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
@@ -1429,15 +1422,18 @@
     }
 
     // --- Inspection Mode Management (Day of Week & Detailed Toggle) ---
-    // วันจันทร์ (Monday = 1) -> บังคับตรวจละเอียด + บังคับถ่ายภาพ 2 จุด
-    // วันอื่น (อังคาร - อาทิตย์) -> โหมดด่วน (Quick Check): มีปุ่ม 'ตรวจครบ สรุปและส่งบันทึก' และปุ่ม 'พบปัญหา'
+    // วันจันทร์ (Monday = 1) -> บังคับตรวจละเอียดรอบคัน + บังคับถ่ายภาพ 2 จุด
+    // วันอาทิตย์ (Sunday = 0) -> วันหยุดประจำสัปดาห์ (ถ้ามีงานวิ่งสามารถกดตรวจด่วนได้)
+    // วันอื่น (อังคาร - เสาร์) -> โหมดด่วน (Quick Check): มี 2 ปุ่ม คือ 'ตรวจครบ สรุปและส่งบันทึก' และ 'พบปัญหา'
     let currentInspectionMode = 'QUICK'; // 'QUICK' or 'DETAILED'
     let isMondayToday = false;
+    let isSundayToday = false;
 
     function initInspectionDayMode() {
       const today = new Date();
       const dayOfWeek = today.getDay(); // 0 = Sunday, 1 = Monday, ..., 6 = Saturday
       isMondayToday = (dayOfWeek === 1);
+      isSundayToday = (dayOfWeek === 0);
 
       const dayNames = ['วันอาทิตย์', 'วันจันทร์', 'วันอังคาร', 'วันพุธ', 'วันพฤหัสบดี', 'วันศุกร์', 'วันเสาร์'];
       const todayName = dayNames[dayOfWeek];
@@ -1447,15 +1443,30 @@
       const bannerDot = document.getElementById('dayModeDot');
       const dashPhotoSub = document.getElementById('dashPhotoSub');
       const frontPhotoSub = document.getElementById('frontPhotoSub');
+      const sundayTag = document.getElementById('sundayTagContainer');
+      const quickInst = document.getElementById('quickInstructionText');
+      const quickSubInst = document.getElementById('quickSubInstructionText');
 
       if (isMondayToday) {
         currentInspectionMode = 'DETAILED';
         if (bannerTitle) bannerTitle.innerText = `รอบตรวจละเอียดประจำสัปดาห์ (${todayName})`;
-        if (bannerSub) bannerSub.innerText = 'ทุกวันจันทร์: บังคับตรวจละเอียดรอบคัน และบังคับถ่ายภาพ 2 จุด';
+        if (bannerSub) bannerSub.innerText = 'ทุกวันจันทร์: ระบบปรับเข้าโหมดตรวจละเอียดและบังคับถ่ายรูป 2 จุดอัตโนมัติ';
         if (bannerDot) bannerDot.className = 'w-2.5 h-2.5 rounded-full bg-amber-400 animate-ping';
         if (dashPhotoSub) dashPhotoSub.innerText = '* บังคับถ่ายทุกวันจันทร์';
         if (frontPhotoSub) frontPhotoSub.innerText = '* บังคับถ่ายทุกวันจันทร์';
+        if (sundayTag) sundayTag.classList.add('hidden');
         setInspectionUIMode('DETAILED');
+      } else if (isSundayToday) {
+        currentInspectionMode = 'QUICK';
+        if (bannerTitle) bannerTitle.innerText = `วันอาทิตย์ (วันหยุดประจำสัปดาห์)`;
+        if (bannerSub) bannerSub.innerText = 'วันหยุด: หากมีคิวงานวิ่ง ให้กดตรวจสภาพรถตามปกติก่อนออกปฏิบัติงาน';
+        if (bannerDot) bannerDot.className = 'w-2.5 h-2.5 rounded-full bg-cyan-400 animate-pulse';
+        if (dashPhotoSub) dashPhotoSub.innerText = '(ถ่ายรูปเสริม ถ้าต้องการ)';
+        if (frontPhotoSub) frontPhotoSub.innerText = '(ถ่ายรูปเสริม ถ้าต้องการ)';
+        if (sundayTag) sundayTag.classList.remove('hidden');
+        if (quickInst) quickInst.innerText = 'วันนี้วันอาทิตย์ หากมีงานวิ่งรถ กรุณากดตรวจสภาพและส่งบันทึก';
+        if (quickSubInst) quickSubInst.innerText = '* วันอาทิตย์เป็นวันหยุด ยกเว้นกรณีมีรับงานวิ่งจึงต้องบันทึกตรวจรถ';
+        setInspectionUIMode('QUICK');
       } else {
         currentInspectionMode = 'QUICK';
         if (bannerTitle) bannerTitle.innerText = `โหมดตรวจประจำวัน (${todayName})`;
@@ -1463,6 +1474,7 @@
         if (bannerDot) bannerDot.className = 'w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse';
         if (dashPhotoSub) dashPhotoSub.innerText = '(ถ่ายรูปเสริม ถ้าต้องการ)';
         if (frontPhotoSub) frontPhotoSub.innerText = '(ถ่ายรูปเสริม ถ้าต้องการ)';
+        if (sundayTag) sundayTag.classList.add('hidden');
         setInspectionUIMode('QUICK');
       }
     }
@@ -1471,51 +1483,13 @@
       currentInspectionMode = mode;
       const quickPanel = document.getElementById('quickInspectionPanel');
       const detailedPanel = document.getElementById('detailedInspectionPanel');
-      const toggleBtn = document.getElementById('toggleDetailedModeBtn');
 
       if (mode === 'DETAILED') {
         if (quickPanel) quickPanel.classList.add('hidden');
         if (detailedPanel) detailedPanel.classList.remove('hidden');
-        if (toggleBtn) {
-          toggleBtn.innerText = isMondayToday ? 'โหมดตรวจละเอียด (วันจันทร์)' : 'สลับกลับโหมดตรวจด่วน';
-          toggleBtn.className = 'px-2 py-1 rounded bg-amber-500/20 text-amber-300 text-[10px] border border-amber-500/40 transition';
-        }
       } else {
         if (quickPanel) quickPanel.classList.remove('hidden');
         if (detailedPanel) detailedPanel.classList.add('hidden');
-        if (toggleBtn) {
-          toggleBtn.innerText = 'สลับโหมดตรวจละเอียด';
-          toggleBtn.className = 'px-2 py-1 rounded bg-slate-800 hover:bg-slate-700 text-cyan-300 text-[10px] border border-cyan-500/30 transition';
-        }
-      }
-    }
-
-    function toggleDetailedInspectionMode() {
-      if (currentInspectionMode === 'QUICK') {
-        setInspectionUIMode('DETAILED');
-        Swal.fire({
-          toast: true,
-          position: 'top-end',
-          icon: 'info',
-          title: 'เข้าสู่โหมดตรวจละเอียดรอบคัน',
-          showConfirmButton: false,
-          timer: 1500,
-          background: '#0a1120',
-          color: '#fff'
-        });
-      } else {
-        if (isMondayToday) {
-          Swal.fire({
-            icon: 'info',
-            title: 'วันจันทร์เป็นรอบตรวจละเอียด',
-            text: 'ทุกวันจันทร์มาตรฐานบริษัทกำหนดให้ตรวจละเอียดรอบคันและถ่ายรูปประกอบครับ',
-            confirmButtonColor: '#f59e0b',
-            background: '#0a1120',
-            color: '#fff'
-          });
-          return;
-        }
-        setInspectionUIMode('QUICK');
       }
     }
 
@@ -1525,10 +1499,10 @@
       setInspectionUIMode('DETAILED');
       Swal.fire({
         icon: 'warning',
-        title: 'สลับสู่โหมดตรวจละเอียด',
-        text: 'กรุณาเลือกจุดชำรุดที่พบเพื่อกด [ชำรุด] และถ่ายภาพหลักฐานประกอบการแจ้งซ่อม',
+        title: 'เปลี่ยนเป็นโหมดตรวจละเอียด',
+        text: 'พบจุดบกพร่อง กรุณาเลือกจุดที่ชำรุดเพื่อกด [ชำรุด] และถ่ายภาพหลักฐานประกอบ',
         confirmButtonColor: '#ef4444',
-        confirmButtonText: 'รับทราบ เริ่มตรวจจุดชำรุด',
+        confirmButtonText: 'เริ่มตรวจจุดชำรุด',
         background: '#0a1120',
         color: '#fff'
       });
@@ -1758,104 +1732,6 @@
           Swal.fire('เกิดข้อผิดพลาด', result.message, 'error');
         }
 
-      } catch (err) {
-        Swal.fire({
-          icon: 'error',
-          title: 'ข้อผิดพลาดการเชื่อมต่อ',
-          text: err.message,
-          background: '#0a1120',
-          color: '#fff'
-        });
-      }
-    }
-
-    // Modal สำหรับพิมพ์รายงานสรุปผลการตรวจรายเดือน (Monthly PDF Generator)
-    async function promptMonthlyReportModal() {
-      const now = new Date();
-      const currentYear = now.getFullYear();
-      const currentMonth = String(now.getMonth() + 1).padStart(2, '0');
-      const defaultMonthStr = `${currentMonth}/${currentYear}`;
-      const defaultPlate = registeredDriver ? registeredDriver.plate : '70-8899 กทม.';
-
-      const { value: formValues } = await Swal.fire({
-        title: 'ออกรายงานสรุปประจำเดือน (PDF)',
-        html: `
-          <div class="space-y-3 text-left font-mono text-xs text-slate-300 mt-2">
-            <p class="text-[11px] text-amber-400">ระบบจะดึงประวัติ Actual จากตาราง <b>Truck_Inspection_Logs</b> มารวบรวมเป็นตาราง 31 วัน</p>
-            <div>
-              <label class="block text-slate-400 mb-1">ทะเบียนรถ 6 ล้อ ที่ต้องการออกรายงาน:</label>
-              <input id="swalMonthlyPlate" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-white font-bold" value="${defaultPlate}">
-            </div>
-            <div>
-              <label class="block text-slate-400 mb-1">เดือนและปี (เช่น 10/2026):</label>
-              <input id="swalMonthlyDate" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-white" value="${defaultMonthStr}">
-            </div>
-          </div>
-        `,
-        focusConfirm: false,
-        showCancelButton: true,
-        confirmButtonText: 'สร้าง PDF สรุปประจำเดือน',
-        cancelButtonText: 'ยกเลิก',
-        confirmButtonColor: '#f59e0b',
-        background: '#0a1120',
-        color: '#fff',
-        preConfirm: () => {
-          return {
-            plate: document.getElementById('swalMonthlyPlate').value.trim(),
-            monthYear: document.getElementById('swalMonthlyDate').value.trim()
-          }
-        }
-      });
-
-      if (!formValues) return;
-
-      Swal.fire({
-        title: 'กำลังประมวลผลรายงานรายเดือน...',
-        html: '<div class="text-xs text-slate-400 font-mono">กำลังสรุปข้อมูลการตรวจทั้ง 31 วันและสร้างไฟล์ PDF...</div>',
-        allowOutsideClick: false,
-        background: '#0a1120',
-        color: '#fff',
-        didOpen: () => Swal.showLoading()
-      });
-
-      try {
-        const payload = {
-          action: 'generate_monthly_pdf',
-          vehiclePlate: formValues.plate,
-          targetMonthYear: formValues.monthYear
-        };
-
-        const res = await fetch(SCRIPT_URL, {
-          method: 'POST',
-          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-          body: JSON.stringify(payload)
-        });
-        const result = await res.json();
-
-        if (result.status === 'success') {
-          Swal.fire({
-            icon: 'success',
-            title: 'สร้างรายงานสรุปรายเดือนสำเร็จ!',
-            html: `
-              <div class="text-left text-xs space-y-2 font-mono text-slate-300 mt-2">
-                <p>🚛 ทะเบียนรถ: <b>${formValues.plate}</b></p>
-                <p>📅 ประจำเดือน: <b>${formValues.monthYear}</b></p>
-                <div class="pt-2 text-center border-t border-slate-800">
-                  <a href="${result.pdfUrl}" target="_blank" rel="noopener noreferrer" 
-                     class="inline-block mt-1 px-4 py-2 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold rounded-lg text-xs shadow-lg">
-                    📄 เปิดดู / ดาวน์โหลด PDF รายเดือน (31 วัน)
-                  </a>
-                </div>
-              </div>
-            `,
-            confirmButtonColor: '#00f2fe',
-            confirmButtonText: 'ปิด',
-            background: '#0a1120',
-            color: '#fff'
-          });
-        } else {
-          Swal.fire('เกิดข้อผิดพลาด', result.message || 'ไม่สามารถสร้างรายงานได้', 'error');
-        }
       } catch (err) {
         Swal.fire({
           icon: 'error',

@@ -143,11 +143,24 @@ function doPost(e) {
       pdfUrl
     ]);
 
+    // 6. อัปเดตไฟล์รายงานสรุปรายเดือน (Monthly PDF Report) หลังบ้านอัตโนมัติทันที
+    // ให้มีเพียงเดือนละ 1 ไฟล์ต่อ 1 ทะเบียนรถ ไม่ซ้ำซ้อนใน Google Drive
+    let monthlyPdfUrl = "-";
+    try {
+      const currentMonthYear = Utilities.formatDate(new Date(), "Asia/Bangkok", "MM/yyyy");
+      const targetPlate = String(data.vehiclePlate || driverInfo.plate || "");
+      const autoMonthlyResult = updateOrCreateMonthlyReport(targetPlate, currentMonthYear, folder);
+      monthlyPdfUrl = autoMonthlyResult.pdfUrl || "-";
+    } catch (mErr) {
+      Logger.log("Auto Monthly PDF Error: " + mErr.toString());
+    }
+
     return responseJSON({
       status: "success",
       message: `บันทึกข้อมูลและสร้างใบตรวจ PDF สำเร็จ (${driverInfo.name})`,
       driverName: driverInfo.name,
       pdfUrl: pdfUrl,
+      monthlyPdfUrl: monthlyPdfUrl,
       timestamp: timestamp
     });
 
@@ -468,21 +481,187 @@ function generateMonthlyTruckInspectionPdf(targetPlate, targetMonthYear) {
     `;
 
     const folder = DriveApp.getFolderById(DRIVE_FOLDER_ID);
-    const pdfBlob = Utilities.newBlob(monthlyHtml, 'text/html', 'monthly.html').getAs('application/pdf');
-    const safePlate = targetPlate.replace(/[^a-zA-Z0-9ก-๙]/g, '');
-    const cleanMonth = targetMonthYear.replace(/[^0-9]/g, '');
-    const fileName = `TTMK_Monthly_${cleanMonth}_${safePlate}.pdf`;
-    const pdfFile = folder.createFile(pdfBlob.setName(fileName));
-    pdfFile.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
-
-    return responseJSON({
-      status: "success",
-      message: `สร้างรายงานสรุปรายเดือนสำเร็จ (${targetPlate})`,
-      pdfUrl: pdfFile.getUrl()
-    });
+    const result = updateOrCreateMonthlyReport(targetPlate, targetMonthYear, folder, monthlyHtml);
+    return responseJSON(result);
 
   } catch(err) {
     return responseJSON({ status: "error", message: "Monthly PDF Error: " + err.toString() });
+  }
+}
+
+/**
+ * ฟังก์ชันสร้างหรืออัปเดตไฟล์รายงานสรุปรายเดือนใน Google Drive
+ * โดยรักษาเงื่อนไข: ให้มีเพียง 1 ไฟล์ต่อเดือนต่อ 1 ทะเบียนรถ ไม่สร้างซ้ำซ้อน
+ */
+function updateOrCreateMonthlyReport(targetPlate, targetMonthYear, folderInstance, prebuiltHtml) {
+  try {
+    const folder = folderInstance || DriveApp.getFolderById(DRIVE_FOLDER_ID);
+    let monthlyHtml = prebuiltHtml;
+
+    if (!monthlyHtml) {
+      // ดึงและรวบรวม HTML ถ้าไม่ได้ส่ง prebuiltHtml มา
+      const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
+      const logSheet = ss.getSheetByName("Truck_Inspection_Logs");
+      if (!logSheet) return { status: "error", message: "ไม่พบ Sheet" };
+
+      const logData = logSheet.getDataRange().getValues();
+      const plateToSearch = (targetPlate || "").replace(/[^a-zA-Z0-9ก-๙]/g, '').toLowerCase();
+
+      const dailyInspections = {};
+      let matchedDriverName = "-";
+
+      for (let i = 1; i < logData.length; i++) {
+        const rowTimestamp = String(logData[i][0] || "");
+        const rowPlate = String(logData[i][4] || "").replace(/[^a-zA-Z0-9ก-๙]/g, '').toLowerCase();
+        
+        if (rowPlate.includes(plateToSearch) || plateToSearch.includes(rowPlate) || !targetPlate) {
+          if (rowTimestamp.includes(targetMonthYear)) {
+            matchedDriverName = logData[i][2] || matchedDriverName;
+            const day = parseInt(rowTimestamp.substring(0, 2), 10);
+            dailyInspections[day] = {
+              status: logData[i][7] === "พร้อมใช้งาน" ? "a" : "r",
+              odometer: logData[i][6]
+            };
+          }
+        }
+      }
+
+      const standardItems = [
+        "1. ระดับน้ำมันเบรคและคลัตซ์ พร้อมใช้งาน",
+        "2. ที่ปัดน้ำฝนพร้อมใช้งาน",
+        "3. เบรคมือใช้งานได้ปกติ",
+        "4. ระบบเบรคใช้งานได้ปกติ",
+        "5. Safety Belt เข็มขัดนิรภัย ใช้งานได้ปกติ",
+        "6. กระจกหน้า / มองข้าง / มองหลัง / มองมุม",
+        "7. ไฟส่องสว่างหน้ารถ และไฟสัญญาณพร้อมใช้งาน",
+        "8. สภาพยางรถ (ดอกยางหน้า 3 มม., หลัง 2 มม.)",
+        "9. สัญญาณแตร",
+        "10. หมอนรองล้อ 2 อัน & กรวยยาง 2 อัน",
+        "11. ถังดับเพลิง พร้อมใช้งาน เกจ์เขียว",
+        "12. กล้องหน้ารถ & GPS ทำงานปกติ",
+        "13. ตรวจเช็คไฟหน้าปัด ไม่มีไฟโชว์ผิดปกติ",
+        "14. ระดับน้ำมันเครื่อง อยู่ในเกณฑ์ปกติ",
+        "15. ระดับน้ำในหม้อน้ำระบายความร้อน & ท่อยาง",
+        "16. ท่อยางและสายพานพัดลม",
+        "17. ถังอัดอากาศพร้อมวาล์วระบายน้ำทิ้ง",
+        "18. ผ้าใบ/สภาพตู้ อยู่ในสภาพดี ไม่บุบ ไม่รั่ว",
+        "19. บานพับ, กลอน/ตัวล็อค แข็งแรง ไม่ชำรุด",
+        "20. ผ้าแดงแขวนท้ายรถ & ป้ายสามเหลี่ยมสะท้อนแสง",
+        "21. สภาพแบตเตอรี่ / สายไฟแรงสูง (EV)"
+      ];
+
+      let dayHeadersHtml = "";
+      for (let d = 1; d <= 31; d++) {
+        dayHeadersHtml += `<th style="width: 2.2%; font-size: 8px; padding: 2px 0; border: 1px solid #94a3b8;">${d}</th>`;
+      }
+
+      let rowsHtml = "";
+      standardItems.forEach((title, idx) => {
+        let cellsHtml = "";
+        for (let d = 1; d <= 31; d++) {
+          let cellVal = "";
+          if (dailyInspections[d]) {
+            cellVal = dailyInspections[d].status === "a" ? "<span style='color:#15803d; font-weight:bold;'>/</span>" : "<span style='color:#b91c1c; font-weight:bold;'>X</span>";
+          }
+          cellsHtml += `<td style="text-align: center; font-size: 8px; padding: 1px 0; border: 1px solid #cbd5e1;">${cellVal}</td>`;
+        }
+
+        rowsHtml += `
+          <tr style="background-color: ${idx % 2 === 0 ? '#ffffff' : '#f8fafc'};">
+            <td style="font-size: 8.5px; padding: 2.5px 4px; border: 1px solid #cbd5e1; white-space: nowrap;">${title}</td>
+            ${cellsHtml}
+          </tr>
+        `;
+      });
+
+      monthlyHtml = `
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <meta charset="utf-8">
+          <style>
+            body { font-family: 'Garuda', 'Sarabun', sans-serif; color: #0f172a; padding: 10px; margin: 0; }
+            .header-title { text-align: center; font-size: 14px; font-weight: bold; margin-bottom: 2px; }
+            .matrix-table { width: 100%; border-collapse: collapse; margin-top: 4px; }
+            .matrix-table th { background-color: #0f172a; color: #ffffff; text-align: center; }
+            .sign-table { width: 100%; margin-top: 10px; border-collapse: collapse; font-size: 8.5px; }
+            .sign-table td { width: 33.33%; text-align: center; padding: 6px; border: 1px solid #cbd5e1; }
+          </style>
+        </head>
+        <body>
+          <div class="header-title">ใบรายการตรวจสภาพรถบรรทุกประจำวัน (สรุปประจำเดือน ${targetMonthYear})</div>
+          <table style="width: 100%; font-size: 9.5px; margin-bottom: 4px;">
+            <tr>
+              <td><b>หจก. ทั่วไทยขนส่งมงคล</b></td>
+              <td style="text-align: right;">
+                พขร.: <b>${matchedDriverName}</b> | ทะเบียนรถ: <b style="color: #b45309;">${targetPlate || '-'}</b> | เดือน: <b>${targetMonthYear}</b>
+              </td>
+            </tr>
+            <tr>
+              <td colspan="2" style="font-size: 8px; color: #475569;">สัญลักษณ์: / = ดี (ปกติ) , X = บกพร่อง (ต้องแจ้งซ่อม)</td>
+            </tr>
+          </table>
+
+          <table class="matrix-table">
+            <thead>
+              <tr>
+                <th style="width: 31%; font-size: 9px; padding: 3px; border: 1px solid #0f172a; text-align: left;">รายการตรวจสภาพรถ (Actual ประจำวัน)</th>
+                ${dayHeadersHtml}
+              </tr>
+            </thead>
+            <tbody>
+              ${rowsHtml}
+            </tbody>
+          </table>
+
+          <table class="sign-table">
+            <tr>
+              <td>
+                ลงชื่อ ...................................................<br>
+                ( <b>${matchedDriverName}</b> )<br>
+                พนักงานขับรถประจำคัน
+              </td>
+              <td>
+                ลงชื่อ ...................................................<br>
+                ( ................................................... )<br>
+                หัวหน้างาน / ผู้ตรวจสอบ (Spot Check)
+              </td>
+              <td>
+                ลงชื่อ ...................................................<br>
+                ( <b>นางสาว.นิชานันท์ เอื้อจิรพรชัย</b> )<br>
+                ผู้รับเหมาขนส่ง / TTMK
+              </td>
+            </tr>
+          </table>
+        </body>
+        </html>
+      `;
+    }
+
+    const pdfBlob = Utilities.newBlob(monthlyHtml, 'text/html', 'monthly.html').getAs('application/pdf');
+    const safePlate = (targetPlate || "").replace(/[^a-zA-Z0-9ก-๙]/g, '');
+    const cleanMonth = targetMonthYear.replace(/[^0-9]/g, '');
+    const fileName = `TTMK_Monthly_${cleanMonth}_${safePlate}.pdf`;
+
+    // ตรวจสอบว่ามีไฟล์ชื่อนี้ใน Google Drive แล้วหรือไม่
+    // ถ้ามีอยู่แล้ว ให้ลบไฟล์เก่าทิ้ง เพื่อแทนที่ด้วยไฟล์อัปเดตล่าสุด (ให้มีแค่เดือนละ 1 ไฟล์ ไม่ซ้ำกัน)
+    const existingFiles = folder.getFilesByName(fileName);
+    while (existingFiles.hasNext()) {
+      const oldFile = existingFiles.next();
+      oldFile.setTrashed(true);
+    }
+
+    const pdfFile = folder.createFile(pdfBlob.setName(fileName));
+    pdfFile.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
+
+    return {
+      status: "success",
+      message: `บันทึกรายงานสรุปรายเดือนสำเร็จ (${targetPlate})`,
+      pdfUrl: pdfFile.getUrl()
+    };
+
+  } catch(e) {
+    return { status: "error", message: e.toString() };
   }
 }
 
