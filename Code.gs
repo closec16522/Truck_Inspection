@@ -189,8 +189,9 @@ function generateFCAM032PdfReport(data, driverInfo, photoBlobs) {
   }
 
   // รูปภาพประกอบ (แสดงเฉพาะรูปที่มีจริง)
-  let imagesHtml = "<div style='display: flex; gap: 10px; margin-top: 10px;'>";
-  if (data.images) {
+  let imagesHtml = "";
+  if (data.images && (data.images.dashboard || data.images.frontVehicle || data.images.defect_1)) {
+    imagesHtml += "<div style='display: flex; gap: 10px; margin-top: 10px;'>";
     if (data.images.dashboard) {
       imagesHtml += `
         <div style="flex: 1; border: 1px solid #94a3b8; padding: 5px; text-align: center;">
@@ -212,8 +213,8 @@ function generateFCAM032PdfReport(data, driverInfo, photoBlobs) {
           <img src="${data.images.defect_1}" style="max-width: 100%; height: 130px; object-fit: contain;" />
         </div>`;
     }
+    imagesHtml += "</div>";
   }
-  imagesHtml += "</div>";
 
   const htmlContent = `
     <!DOCTYPE html>
