@@ -102,8 +102,8 @@
       <div>
         <div class="flex items-center gap-1.5">
           <h1 class="text-xs font-bold text-white tracking-tight leading-tight">หจก.ทั่วไทยขนส่งมงคล</h1>
-          <span class="px-1.5 py-0.2 rounded text-[8px] font-mono font-bold bg-amber-500/10 text-amber-400 border border-amber-500/30">
-            F-CAM-032
+          <span class="px-1.5 py-0.2 rounded text-[8px] font-mono font-bold bg-cyan-500/10 text-cyan-300 border border-cyan-500/30">
+            ระบบตรวจสภาพรถ 6 ล้อ
           </span>
         </div>
         <p class="text-[9px] text-cyan-300/80 font-mono leading-none">3D Digital Twin</p>
@@ -151,7 +151,7 @@
         <div class="flex justify-between items-center text-xs font-mono">
           <span class="text-cyan-300 flex items-center gap-1.5 font-bold">
             <span class="w-2 h-2 rounded-full bg-amber-400 animate-pulse"></span>
-            ความคืบหน้าการตรวจมาตรฐาน F-CAM-032:
+            ความคืบหน้าการตรวจสภาพรถ:
           </span>
           <span id="progressText" class="text-amber-400 font-bold">เช็คแล้ว 0/6 โซน</span>
         </div>
@@ -198,13 +198,16 @@
 
       <!-- Action Footer Buttons -->
       <div class="flex items-center gap-2 pt-1 border-t border-slate-700/50">
-        <button onclick="startSequentialWalkaround()" class="flex-1 py-2 px-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-cyan-300 text-xs font-mono font-medium border border-cyan-600/30 flex items-center justify-center gap-1.5 transition">
+        <button onclick="startSequentialWalkaround()" class="py-2 px-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-cyan-300 text-xs font-mono font-medium border border-cyan-600/30 flex items-center justify-center gap-1 transition" title="เดินตรวจรอบคัน 3D">
           <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"></path></svg>
-          เดินตรวจ 3D (Auto-Tour)
+          <span class="hidden sm:inline">เดินตรวจ 3D</span>
+        </button>
+        <button onclick="promptMonthlyReportModal()" class="py-2 px-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-amber-300 text-xs font-mono font-medium border border-amber-500/30 flex items-center justify-center gap-1 transition" title="พิมพ์รายงานสรุป 31 วันประจำเดือน">
+          📄 สรุปรายเดือน
         </button>
         <button id="submitAuditBtn" onclick="openFinalReportModal()" class="flex-1 py-2 px-2.5 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 text-xs font-bold font-mono tracking-wide shadow-lg shadow-amber-500/20 flex items-center justify-center gap-1.5 transition">
           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-          สรุปและสร้าง PDF F-CAM-032
+          สรุป & ส่งตรวจประจำวัน
         </button>
       </div>
 
@@ -326,8 +329,8 @@
         <div class="flex items-center gap-2">
           <span class="w-3 h-3 rounded-full bg-amber-400"></span>
           <div>
-            <h3 class="text-xs font-mono font-bold text-amber-300 uppercase">ใบสรุปผลการตรวจสภาพยานพาหนะ F-CAM-032_r3</h3>
-            <p class="text-[9px] text-slate-400">หจก. ทั่วไทยขนส่งมงคล (โทร. 062-3285963)</p>
+            <h3 class="text-xs font-mono font-bold text-amber-300 uppercase">ใบสรุปผลการตรวจสภาพรถบรรทุก 6 ล้อ ประจำวัน</h3>
+            <p class="text-[9px] text-slate-400">หจก. ทั่วไทยขนส่งมงคล</p>
           </div>
         </div>
         <button onclick="closeFinalReportModal()" class="text-slate-400 hover:text-white text-lg">&times;</button>
@@ -350,8 +353,8 @@
             <span id="sumVehicleType" class="text-cyan-400 font-bold">ICE (ดีเซล/น้ำมัน)</span>
           </div>
           <div>
-            <span class="text-slate-500 block">เอกสารอ้างอิง:</span>
-            <span class="text-amber-300 font-bold">F-CAM-032_r3 (Nov 2019)</span>
+            <span class="text-slate-500 block">หน่วยงานขนส่ง:</span>
+            <span class="text-amber-300 font-bold">หจก. ทั่วไทยขนส่งมงคล</span>
           </div>
         </div>
 
@@ -1454,10 +1457,10 @@
       }
 
       Swal.fire({
-        title: 'กำลังสร้างรายงาน F-CAM-032 PDF',
+        title: 'กำลังสร้างรายงานสรุปตรวจสภาพรถ PDF',
         html: `
           <div class="text-xs text-slate-400 mt-2 font-mono">
-            กำลังประมวลผลข้อมูล บันทึกลง Sheet และสร้างไฟล์ PDF ใบตรวจ F-CAM-032_r3 อัตโนมัติใน Google Drive...
+            กำลังประมวลผลข้อมูล บันทึกลง Sheet และสร้างไฟล์ PDF ตรวจสภาพรถประจำวันอัตโนมัติใน Google Drive...
           </div>
         `,
         allowOutsideClick: false,
@@ -1481,7 +1484,7 @@
       });
 
       const payload = {
-        standardDoc: 'F-CAM-032_r3',
+        standardDoc: 'DAILY_INSPECTION',
         email: registeredDriver ? registeredDriver.email : 'closec16522@gmail.com',
         driverName: registeredDriver ? registeredDriver.name : 'นายทวีศักดิ์ คำปก',
         vehiclePlate: registeredDriver ? registeredDriver.plate : '70-8899 กทม.',
@@ -1504,16 +1507,15 @@
         if (result.status === 'success') {
           const hasValidPdf = result.pdfUrl && result.pdfUrl.startsWith('http');
           const pdfLinkHtml = hasValidPdf 
-            ? `<a href="${result.pdfUrl}" target="_blank" rel="noopener noreferrer" class="inline-block mt-1 px-3 py-1 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold rounded text-xs shadow">📄 เปิดดูและดาวน์โหลดไฟล์ PDF</a>`
+            ? `<a href="${result.pdfUrl}" target="_blank" rel="noopener noreferrer" class="inline-block mt-1 px-3 py-1 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold rounded text-xs shadow">📄 เปิดดูและดาวน์โหลดไฟล์ PDF ประจำวัน</a>`
             : `<span class="text-rose-400 font-bold">⚠️ (${result.pdfUrl})</span>`;
 
           Swal.fire({
             icon: 'success',
-            title: 'สร้างรายงาน F-CAM-032 เรียบร้อย!',
+            title: 'สร้างรายงานตรวจสภาพรถเรียบร้อย!',
             html: `
               <div class="text-left text-xs space-y-2 font-mono text-slate-300 mt-2">
                 <p>✅ บันทึกลง Sheet: <b>Truck_Inspection_Logs</b></p>
-                <p>✅ แบบฟอร์มมาตรฐาน: <b>F-CAM-032_r3</b></p>
                 <p>👤 ผู้ตรวจ: <b>${payload.driverName}</b> (ทะเบียน: ${payload.vehiclePlate})</p>
                 <div class="pt-2 text-center border-t border-slate-800">
                   ${pdfLinkHtml}
@@ -1532,6 +1534,104 @@
           Swal.fire('เกิดข้อผิดพลาด', result.message, 'error');
         }
 
+      } catch (err) {
+        Swal.fire({
+          icon: 'error',
+          title: 'ข้อผิดพลาดการเชื่อมต่อ',
+          text: err.message,
+          background: '#0a1120',
+          color: '#fff'
+        });
+      }
+    }
+
+    // Modal สำหรับพิมพ์รายงานสรุปผลการตรวจรายเดือน (Monthly PDF Generator)
+    async function promptMonthlyReportModal() {
+      const now = new Date();
+      const currentYear = now.getFullYear();
+      const currentMonth = String(now.getMonth() + 1).padStart(2, '0');
+      const defaultMonthStr = `${currentMonth}/${currentYear}`;
+      const defaultPlate = registeredDriver ? registeredDriver.plate : '70-8899 กทม.';
+
+      const { value: formValues } = await Swal.fire({
+        title: 'ออกรายงานสรุปประจำเดือน (PDF)',
+        html: `
+          <div class="space-y-3 text-left font-mono text-xs text-slate-300 mt-2">
+            <p class="text-[11px] text-amber-400">ระบบจะดึงประวัติ Actual จากตาราง <b>Truck_Inspection_Logs</b> มารวบรวมเป็นตาราง 31 วัน</p>
+            <div>
+              <label class="block text-slate-400 mb-1">ทะเบียนรถ 6 ล้อ ที่ต้องการออกรายงาน:</label>
+              <input id="swalMonthlyPlate" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-white font-bold" value="${defaultPlate}">
+            </div>
+            <div>
+              <label class="block text-slate-400 mb-1">เดือนและปี (เช่น 10/2026):</label>
+              <input id="swalMonthlyDate" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-white" value="${defaultMonthStr}">
+            </div>
+          </div>
+        `,
+        focusConfirm: false,
+        showCancelButton: true,
+        confirmButtonText: 'สร้าง PDF สรุปประจำเดือน',
+        cancelButtonText: 'ยกเลิก',
+        confirmButtonColor: '#f59e0b',
+        background: '#0a1120',
+        color: '#fff',
+        preConfirm: () => {
+          return {
+            plate: document.getElementById('swalMonthlyPlate').value.trim(),
+            monthYear: document.getElementById('swalMonthlyDate').value.trim()
+          }
+        }
+      });
+
+      if (!formValues) return;
+
+      Swal.fire({
+        title: 'กำลังประมวลผลรายงานรายเดือน...',
+        html: '<div class="text-xs text-slate-400 font-mono">กำลังสรุปข้อมูลการตรวจทั้ง 31 วันและสร้างไฟล์ PDF...</div>',
+        allowOutsideClick: false,
+        background: '#0a1120',
+        color: '#fff',
+        didOpen: () => Swal.showLoading()
+      });
+
+      try {
+        const payload = {
+          action: 'generate_monthly_pdf',
+          vehiclePlate: formValues.plate,
+          targetMonthYear: formValues.monthYear
+        };
+
+        const res = await fetch(SCRIPT_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+          body: JSON.stringify(payload)
+        });
+        const result = await res.json();
+
+        if (result.status === 'success') {
+          Swal.fire({
+            icon: 'success',
+            title: 'สร้างรายงานสรุปรายเดือนสำเร็จ!',
+            html: `
+              <div class="text-left text-xs space-y-2 font-mono text-slate-300 mt-2">
+                <p>🚛 ทะเบียนรถ: <b>${formValues.plate}</b></p>
+                <p>📅 ประจำเดือน: <b>${formValues.monthYear}</b></p>
+                <div class="pt-2 text-center border-t border-slate-800">
+                  <a href="${result.pdfUrl}" target="_blank" rel="noopener noreferrer" 
+                     class="inline-block mt-1 px-4 py-2 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold rounded-lg text-xs shadow-lg">
+                    📄 เปิดดู / ดาวน์โหลด PDF รายเดือน (31 วัน)
+                  </a>
+                </div>
+              </div>
+            `,
+            confirmButtonColor: '#00f2fe',
+            confirmButtonText: 'ปิด',
+            background: '#0a1120',
+            color: '#fff'
+          });
+        } else {
+          Swal.fire('เกิดข้อผิดพลาด', result.message || 'ไม่สามารถสร้างรายงานได้', 'error');
+        }
       } catch (err) {
         Swal.fire({
           icon: 'error',
