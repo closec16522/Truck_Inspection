@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>TTMK 3D Digital Twin - ระบบจำลองตรวจเช็กรถบรรทุก 6 ล้อ หจก. ทั่วไทยขนส่งมงคล</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220%22%200%22%20100%22%20100%22><text y=%22.9em%22 font-size=%2290%22>🚛</text></svg>">
   
   <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
@@ -1083,17 +1084,25 @@
       });
 
       try {
-        // ดึงตรวจสอบสิทธิ์ตรงกับ Apps Script Backend
-        const res = await fetch(`${SCRIPT_URL}?action=verify_driver&email=${encodeURIComponent(email)}`);
+        // ส่ง POST เพื่อตรวจสอบข้อมูลพนักงานกับ Google Apps Script
+        const res = await fetch(SCRIPT_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+          body: JSON.stringify({
+            action: 'verify_driver',
+            email: email
+          })
+        });
         const json = await res.json();
 
-        if (json.status === 'success' && json.data) {
+        if (json.status === 'success' && (json.driverName || (json.data && json.data.name))) {
+          const dData = json.data || {};
           registeredDriver = {
-            id: json.data.driverId,
-            name: json.data.name,
-            phone: json.data.phone,
-            plate: json.data.plate || '70-XXXX',
-            email: json.data.email,
+            id: dData.driverId || 'EMP-OK',
+            name: json.driverName || dData.name || 'พนักงานขับรถ',
+            phone: dData.phone || '062-3285963',
+            plate: dData.plate || '70-XXXX กทม.',
+            email: email,
             status: 'ACTIVE'
           };
 
@@ -1124,21 +1133,13 @@
           });
         }
       } catch (e) {
-        // Fallback กรณีติด CORS หรือ offline
-        registeredDriver = {
-          id: 'DRV-TTMK',
-          name: email.split('@')[0],
-          phone: '062-3285963',
-          plate: '70-XXXX',
-          status: 'ACTIVE'
-        };
-        document.getElementById('driverCard').classList.remove('hidden');
-        document.getElementById('driverIdTxt').innerText = registeredDriver.id;
-        document.getElementById('driverNameTxt').innerText = registeredDriver.name;
-        document.getElementById('driverPlateTxt').innerText = registeredDriver.plate;
-        document.getElementById('verifiedBadge').innerText = '⚠️ โหมดออฟไลน์';
-        document.getElementById('verifiedBadge').className = 'text-[10px] font-mono text-amber-400 font-bold';
-        Swal.close();
+        Swal.fire({
+          icon: 'error',
+          title: 'การเชื่อมต่อผิดพลาด',
+          text: e.toString(),
+          background: '#0e1726',
+          color: '#fff'
+        });
       }
     }
 
