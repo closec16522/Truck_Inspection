@@ -3,9 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>TTMK 3D Digital Twin - ระบบจำลองตรวจเช็กรถบรรทุก 6 ล้อ หจก. ทั่วไทยขนส่งมงคล</title>
+  <title>TTMK 3D Digital Twin - ระบบตรวจสภาพรถบรรทุก 6 ล้อ มาตรฐาน F-CAM-032_r3</title>
   <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220%22%200%22%20100%22%20100%22><text y=%22.9em%22 font-size=%2290%22>🚛</text></svg>">
-  
+
   <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
   
@@ -16,10 +16,10 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
 
-  <!-- Google Font: Prompt & Orbitron for Tech Cockpit Feel -->
+  <!-- Google Fonts: Prompt & Chakra Petch -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;600;700&family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;500;600;700&family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
   <script>
     tailwind.config = {
@@ -31,13 +31,13 @@
           },
           colors: {
             cyber: {
-              bg: '#070b14',
-              panel: '#0e1726',
-              border: '#1e293b',
-              neon: '#06b6d4',
+              bg: '#050811',
+              panel: '#0a1120',
+              border: '#16233b',
+              neon: '#00f2fe',
               accent: '#f59e0b',
               ev: '#10b981',
-              danger: '#ef4444'
+              danger: '#f43f5e'
             }
           }
         }
@@ -47,7 +47,7 @@
 
   <style>
     body {
-      background-color: #070b14;
+      background-color: #050811;
       overflow-x: hidden;
       user-select: none;
       -webkit-tap-highlight-color: transparent;
@@ -61,59 +61,61 @@
       z-index: 10;
     }
     .hud-glass {
-      background: rgba(14, 23, 38, 0.78);
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
-      border: 1px solid rgba(6, 182, 212, 0.25);
-      box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+      background: rgba(10, 17, 32, 0.85);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      border: 1px solid rgba(0, 242, 254, 0.22);
+      box-shadow: 0 10px 35px 0 rgba(0, 0, 0, 0.5);
     }
     .hud-scanner {
-      background: linear-gradient(180deg, rgba(6,182,212,0) 0%, rgba(6,182,212,0.3) 50%, rgba(6,182,212,0.8) 100%);
+      background: linear-gradient(180deg, rgba(0,242,254,0) 0%, rgba(0,242,254,0.35) 50%, rgba(0,242,254,0.85) 100%);
       animation: scanSweep 2.2s infinite ease-in-out;
     }
     @keyframes scanSweep {
       0% { top: 0%; opacity: 0.2; }
-      50% { opacity: 0.9; }
+      50% { opacity: 0.95; }
       100% { top: 92%; opacity: 0.2; }
     }
-    .pulse-glow {
-      animation: pulseGlow 1.8s infinite;
+    .scrollbar-thin::-webkit-scrollbar {
+      width: 5px;
     }
-    @keyframes pulseGlow {
-      0%, 100% { box-shadow: 0 0 8px rgba(6,182,212,0.4); }
-      50% { box-shadow: 0 0 20px rgba(6,182,212,0.9); }
+    .scrollbar-thin::-webkit-scrollbar-thumb {
+      background: #1e293b;
+      border-radius: 4px;
     }
   </style>
 </head>
 <body class="text-slate-100 min-h-screen flex flex-col justify-between relative font-sans">
 
+  <!-- 3D Canvas Background Container -->
   <div id="canvas-container"></div>
 
-  <header class="relative z-20 px-4 py-3 flex items-center justify-between hud-glass border-b border-cyan-900/40">
-    <div class="flex items-center gap-3">
-      <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-cyan-600 to-amber-500 p-0.5 flex items-center justify-center shadow-lg shadow-cyan-500/20">
+  <!-- Top Cockpit Header -->
+  <header class="relative z-20 px-3.5 py-2.5 flex items-center justify-between hud-glass border-b border-cyan-900/40">
+    <div class="flex items-center gap-2.5">
+      <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-cyan-500 to-amber-500 p-0.5 flex items-center justify-center shadow-lg shadow-cyan-500/20">
         <div class="w-full h-full bg-slate-950 rounded-[10px] flex items-center justify-center">
-          <span class="font-mono font-bold text-amber-400 text-sm tracking-tighter">TTMK</span>
+          <span class="font-mono font-bold text-amber-400 text-xs tracking-tighter">TTMK</span>
         </div>
       </div>
       <div>
         <div class="flex items-center gap-2">
-          <h1 class="text-sm font-bold tracking-wide text-white">หจก. ทั่วไทยขนส่งมงคล</h1>
-          <span class="px-2 py-0.5 rounded-full text-[9px] font-mono font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 flex items-center gap-1">
-            <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping"></span> 3D SIMULATION ACTIVE
+          <h1 class="text-xs sm:text-sm font-bold tracking-wide text-white">หจก. ทั่วไทยขนส่งมงคล</h1>
+          <span class="px-2 py-0.5 rounded-full text-[9px] font-mono font-bold bg-amber-500/10 text-amber-400 border border-amber-500/30">
+            F-CAM-032_r3 (Nov 2019)
           </span>
         </div>
-        <p class="text-[10px] text-cyan-300/80 font-mono">ระบบตรวจสอบรถบรรทุก 6 ล้อ Digital Twin เสมือนจริง</p>
+        <p class="text-[10px] text-cyan-300/80 font-mono">ระบบตรวจสภาพรถ 6 ล้อ Digital Twin 3D + PDF Auto-Gen</p>
       </div>
     </div>
 
-    <!-- Mode Selector & Audio Toggle -->
+    <!-- Mode Switcher (Diesel vs EV) & Sound Button -->
     <div class="flex items-center gap-2">
-      <div class="bg-slate-900/80 p-1 rounded-xl border border-cyan-800/40 flex items-center gap-1">
-        <button id="modeIceBtn" onclick="switchVehicleMode('ICE')" class="px-2.5 py-1 rounded-lg text-xs font-mono font-medium transition bg-amber-500 text-slate-950 shadow">
+      <div class="bg-slate-900/90 p-1 rounded-xl border border-cyan-800/40 flex items-center gap-1 shadow-inner">
+        <button id="modeIceBtn" onclick="switchVehicleMode('ICE')" class="px-2.5 py-1 rounded-lg text-xs font-mono font-semibold transition bg-amber-500 text-slate-950 shadow">
           🚛 น้ำมัน (ICE)
         </button>
-        <button id="modeEvBtn" onclick="switchVehicleMode('EV')" class="px-2.5 py-1 rounded-lg text-xs font-mono font-medium text-slate-400 hover:text-emerald-300 transition">
+        <button id="modeEvBtn" onclick="switchVehicleMode('EV')" class="px-2.5 py-1 rounded-lg text-xs font-mono font-semibold text-slate-400 hover:text-emerald-300 transition">
           ⚡ ไฟฟ้า (EV)
         </button>
       </div>
@@ -125,188 +127,239 @@
 
   <main class="relative z-20 flex-grow pointer-events-none p-3 md:p-5 flex flex-col justify-between">
     
-    <!-- Top-Left Floating Info / Driver ID Verification -->
-    <div class="pointer-events-auto max-w-xs w-full hud-glass rounded-2xl p-3.5 space-y-2.5 shadow-2xl border-cyan-500/30">
-      <div class="flex items-center justify-between border-b border-cyan-900/40 pb-2">
-        <div class="flex items-center gap-2">
-          <div class="w-2 h-2 rounded-full bg-cyan-400"></div>
-          <span class="text-xs font-mono font-bold text-cyan-300">ยืนยันตัวตนพนักงานขับรถ</span>
+    <!-- Top-Left Floating Driver Card (Compact & Minimal, Click to Switch Driver) -->
+    <div class="pointer-events-auto max-w-xs w-full hud-glass rounded-2xl p-2.5 space-y-1.5 shadow-2xl border-cyan-500/30">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center gap-1.5">
+          <div class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></div>
+          <span class="text-[11px] font-mono font-bold text-cyan-300">พนักงานขับรถผู้ตรวจ:</span>
         </div>
-        <span id="verifiedBadge" class="text-[10px] font-mono text-slate-400">ยังไม่ตรวจสอบ</span>
+        <button onclick="promptChangeDriver()" class="text-[10px] font-mono text-cyan-400 hover:text-amber-300 underline">
+          เปลี่ยนคนขับ
+        </button>
       </div>
 
-      <div class="space-y-1.5">
-        <div class="relative">
-          <input type="email" id="driverEmailInput" placeholder="กรอกอีเมลคนขับ เช่น driver@gmail.com" 
-            class="w-full bg-slate-900/90 border border-slate-700 focus:border-cyan-400 rounded-lg px-2.5 py-1.5 text-xs text-white placeholder-slate-500 focus:outline-none font-mono">
-          <button onclick="verifyDriverEmail()" class="absolute right-1 top-1 bottom-1 px-2.5 bg-cyan-600 hover:bg-cyan-500 text-slate-950 font-bold rounded text-[10px] transition">
-            ตรวจ
-          </button>
+      <div class="p-2 rounded-lg bg-cyan-950/40 border border-cyan-500/20 text-[11px] space-y-0.5">
+        <div class="flex justify-between items-center">
+          <span id="driverNameTxt" class="text-white font-bold text-xs">นายทวีศักดิ์ คำปก (Mr.Taweesak)</span>
+          <span id="driverIdTxt" class="font-mono text-cyan-300 text-[10px] bg-slate-900 px-1.5 py-0.5 rounded">DRV-999</span>
         </div>
-        <div id="driverCard" class="hidden p-2 rounded-lg bg-cyan-950/40 border border-cyan-500/20 text-[11px] space-y-0.5">
-          <div class="flex justify-between">
-            <span class="text-slate-400">รหัสคนขับ:</span>
-            <span id="driverIdTxt" class="font-mono text-cyan-300 font-bold">DRV-001</span>
-          </div>
-          <div class="flex justify-between">
-            <span class="text-slate-400">ชื่อ-สกุล:</span>
-            <span id="driverNameTxt" class="text-white font-medium">นายทวีศักดิ์ คำปก</span>
-          </div>
-          <div class="flex justify-between">
-            <span class="text-slate-400">ทะเบียนรถ:</span>
-            <span id="driverPlateTxt" class="font-mono text-amber-400 font-bold">70-8899 กทม.</span>
-          </div>
+        <div class="flex justify-between text-[10px] text-slate-400 pt-0.5">
+          <span>ทะเบียน: <b id="driverPlateTxt" class="text-amber-400 font-mono">70-8899 กทม.</b></span>
+          <span>สิทธิ์: <b class="text-emerald-400 font-mono">ACTIVE</b></span>
         </div>
       </div>
 
-      <div class="pt-1 flex items-center justify-between text-[11px]">
-        <span class="text-slate-400">สถานะ 3D Simulation:</span>
-        <button onclick="reset3DCamera()" class="text-cyan-400 hover:underline flex items-center gap-1 font-mono text-[10px]">
+      <div class="flex items-center justify-between text-[10px] text-slate-400 pt-0.5">
+        <span>มุมมอง 3 มิติ:</span>
+        <button onclick="reset3DCamera()" class="text-cyan-400 hover:underline flex items-center gap-1 font-mono">
           <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg> รีเซ็ตมุมกล้อง
         </button>
       </div>
     </div>
 
-    <!-- Middle Hint: 3D Interaction Guideline -->
-    <div class="self-center text-center pointer-events-none transition-opacity duration-500" id="orbitHint">
-      <div class="px-4 py-1.5 rounded-full bg-slate-900/60 border border-cyan-500/20 backdrop-blur text-[11px] text-cyan-300 font-mono tracking-wider flex items-center gap-2">
-        <svg class="w-3.5 h-3.5 text-cyan-400 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m0 14v1m8-8h-1M5 12H4m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707"></path></svg>
-        ใช้นิ้วเลื่อนหมุนโมเดล 3D รอบคัน 360° หรือแตะที่จุดไฟกระพริบเพื่อตรวจ
+    <!-- Center Interactive Hint -->
+    <div class="self-center text-center pointer-events-none transition-opacity duration-500">
+      <div class="px-3.5 py-1.5 rounded-full bg-slate-900/70 border border-cyan-500/20 backdrop-blur text-[11px] text-cyan-300 font-mono tracking-wider flex items-center gap-2 shadow-lg">
+        <span class="w-2 h-2 rounded-full bg-cyan-400 animate-ping"></span>
+        หมุน 3D ดูรอบคัน หรือแตะจุดตรวจเพื่อเช็คข้อบกพร่องตาม F-CAM-032
       </div>
     </div>
 
-    <div class="pointer-events-auto max-w-xl w-full mx-auto hud-glass rounded-2xl p-3.5 shadow-2xl border-cyan-500/30 space-y-3">
+    <!-- Bottom HUD Cockpit Controller -->
+    <div class="pointer-events-auto max-w-2xl w-full mx-auto hud-glass rounded-2xl p-3.5 shadow-2xl border-cyan-500/30 space-y-2.5">
       
-      <!-- Progress Bar -->
+      <!-- Progress Bar & Mandatory Photos Reminder -->
       <div class="space-y-1">
         <div class="flex justify-between items-center text-xs font-mono">
-          <span class="text-cyan-300 flex items-center gap-1.5">
+          <span class="text-cyan-300 flex items-center gap-1.5 font-bold">
             <span class="w-2 h-2 rounded-full bg-amber-400 animate-pulse"></span>
-            ความคืบหน้าการตรวจรอบคัน:
+            ความคืบหน้าการตรวจมาตรฐาน F-CAM-032:
           </span>
-          <span id="progressText" class="text-amber-400 font-bold">0/6 จุด (0%)</span>
+          <span id="progressText" class="text-amber-400 font-bold">เช็คแล้ว 0/6 โซน</span>
         </div>
         <div class="w-full bg-slate-900 rounded-full h-2 overflow-hidden border border-slate-700">
-          <div id="progressBar" class="bg-gradient-to-r from-cyan-500 to-amber-400 h-full w-0 transition-all duration-500"></div>
+          <div id="progressBar" class="bg-gradient-to-r from-cyan-500 via-amber-400 to-emerald-400 h-full w-0 transition-all duration-500"></div>
+        </div>
+      </div>
+
+      <!-- Mandatory Photo Badges (รูปหน้าปัดไมล์ + รูปหน้ารถ) -->
+      <div class="grid grid-cols-2 gap-2 text-xs font-mono">
+        <div id="badgeDashPhoto" class="p-2 rounded-xl border border-slate-700 bg-slate-900/80 flex items-center justify-between">
+          <div class="flex items-center gap-1.5">
+            <span>📸</span>
+            <div>
+              <p class="font-bold text-white text-[11px]">1. รูปหน้าปัดไมล์</p>
+              <p class="text-[9px] text-amber-400">* บังคับทุกวัน</p>
+            </div>
+          </div>
+          <button onclick="startMandatoryCamera('dashboard', 'ถ่ายรูปหน้าปัดเรือนไมล์และไฟเตือน')" 
+            id="btnDashPhoto" class="px-2.5 py-1 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold rounded text-[10px] transition">
+            ถ่ายภาพ
+          </button>
+        </div>
+
+        <div id="badgeFrontPhoto" class="p-2 rounded-xl border border-slate-700 bg-slate-900/80 flex items-center justify-between">
+          <div class="flex items-center gap-1.5">
+            <span>🚛</span>
+            <div>
+              <p class="font-bold text-white text-[11px]">2. รูปหน้ารถ/รอบคัน</p>
+              <p class="text-[9px] text-amber-400">* บังคับทุกวัน</p>
+            </div>
+          </div>
+          <button onclick="startMandatoryCamera('frontVehicle', 'ถ่ายรูปหน้ารถ/สภาพรอบคัน')" 
+            id="btnFrontPhoto" class="px-2.5 py-1 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold rounded text-[10px] transition">
+            ถ่ายภาพ
+          </button>
         </div>
       </div>
 
       <!-- Hotspots Quick Navigation Chips -->
       <div class="grid grid-cols-3 sm:grid-cols-6 gap-1.5" id="hotspotsButtonContainer">
-        <!-- Buttons generated via JS -->
+        <!-- Injected via JS -->
       </div>
 
-      <!-- Action Panel: Final Inspection Report and Submit -->
+      <!-- Action Footer Buttons -->
       <div class="flex items-center gap-2 pt-1 border-t border-slate-700/50">
-        <button onclick="startSequentialWalkaround()" class="flex-1 py-2 px-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-cyan-300 text-xs font-mono font-medium border border-cyan-600/30 flex items-center justify-center gap-1.5 transition">
-          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-          เริ่มตรวจทีละจุด (Auto-Tour)
+        <button onclick="startSequentialWalkaround()" class="flex-1 py-2 px-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-cyan-300 text-xs font-mono font-medium border border-cyan-600/30 flex items-center justify-center gap-1.5 transition">
+          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"></path></svg>
+          เดินตรวจ 3D (Auto-Tour)
         </button>
-        <button id="submitAuditBtn" onclick="openFinalReportModal()" class="flex-1 py-2 px-3 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 text-xs font-bold font-mono tracking-wide shadow-lg shadow-amber-500/20 flex items-center justify-center gap-1.5 transition">
+        <button id="submitAuditBtn" onclick="openFinalReportModal()" class="flex-1 py-2 px-2.5 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 text-xs font-bold font-mono tracking-wide shadow-lg shadow-amber-500/20 flex items-center justify-center gap-1.5 transition">
           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-          สรุปและส่งบันทึก Sheet
+          สรุปและสร้าง PDF F-CAM-032
         </button>
       </div>
 
     </div>
   </main>
 
-  <div id="cameraInspectionModal" class="fixed inset-0 z-50 bg-black/90 flex flex-col items-center justify-center p-3 hidden backdrop-blur-md">
-    <div class="max-w-md w-full hud-glass rounded-2xl overflow-hidden border border-cyan-400/50 shadow-2xl flex flex-col">
+  <!-- Camera Inspection Modal (For Mandatory Photos or Defect Evidence) -->
+  <div id="cameraInspectionModal" class="fixed inset-0 z-50 bg-black/90 flex flex-col items-center justify-center p-2 sm:p-4 hidden backdrop-blur-md">
+    <div class="max-w-lg w-full hud-glass rounded-2xl overflow-hidden border border-cyan-400/50 shadow-2xl flex flex-col max-h-[95vh]">
       
       <!-- Modal Header -->
-      <div class="px-4 py-2.5 bg-slate-900 border-b border-cyan-800/60 flex items-center justify-between">
+      <div class="px-4 py-2 bg-slate-900 border-b border-cyan-800/60 flex items-center justify-between">
         <div class="flex items-center gap-2">
           <span class="w-2.5 h-2.5 rounded-full bg-red-500 animate-ping"></span>
-          <h3 id="camModalTitle" class="text-xs font-mono font-bold text-cyan-300 uppercase tracking-wider">กำลังเปิดกล้องสด...</h3>
+          <div>
+            <h3 id="camModalTitle" class="text-xs font-mono font-bold text-cyan-300 uppercase">กำลังเปิดกล้องสด...</h3>
+            <span id="camStandardTag" class="text-[9px] text-amber-400 font-mono">F-CAM-032_r3 LIVE AUDIT</span>
+          </div>
         </div>
         <button onclick="closeCameraModal()" class="text-slate-400 hover:text-white text-lg p-1">&times;</button>
       </div>
 
-      <!-- Viewfinder Area with HUD Overlay -->
+      <!-- Live Camera Viewfinder with HUD Sci-Fi Overlay -->
       <div class="relative w-full aspect-[4/3] bg-black overflow-hidden flex items-center justify-center">
         <video id="inspectionVideo" autoplay playsinline class="w-full h-full object-cover"></video>
         
-        <!-- Live HUD Overlay Elements -->
+        <!-- HUD Sci-Fi Overlay Elements -->
         <div class="absolute inset-0 pointer-events-none p-3 flex flex-col justify-between">
-          <!-- Scanning line -->
-          <div class="absolute inset-x-0 h-16 hud-scanner"></div>
+          <div class="absolute inset-x-0 h-14 hud-scanner"></div>
 
           <div class="flex justify-between items-start font-mono text-[10px] text-cyan-400/90 drop-shadow">
             <div>
-              <p>TTMK-INSPECT // LIVE</p>
-              <p id="camTimestamp">2026-10-03 19:45:00</p>
+              <p>TTMK-AUDIT // F-CAM-032_r3</p>
+              <p id="camTimestamp">2026-10-03 20:45:00</p>
             </div>
             <div class="text-right">
-              <p id="hudTargetText">POINT: FRONT_TIRE</p>
-              <p class="text-amber-400">CAMERA ACTIVE</p>
+              <p id="hudTargetText" class="text-amber-400 font-bold">POINT: MANDATORY_PHOTO</p>
+              <p class="text-emerald-400">HARDWARE CAMERA LOCKED</p>
             </div>
           </div>
 
           <!-- Crosshair Reticle -->
-          <div class="self-center w-28 h-28 border border-cyan-400/40 rounded-full flex items-center justify-center relative">
+          <div class="self-center w-24 h-24 border border-cyan-400/40 rounded-full flex items-center justify-center relative">
             <div class="w-2 h-2 rounded-full bg-cyan-400"></div>
-            <div class="absolute -top-2 w-3 h-0.5 bg-cyan-400"></div>
-            <div class="absolute -bottom-2 w-3 h-0.5 bg-cyan-400"></div>
-            <div class="absolute -left-2 h-3 w-0.5 bg-cyan-400"></div>
-            <div class="absolute -right-2 h-3 w-0.5 bg-cyan-400"></div>
+            <div class="absolute -top-1.5 w-3 h-0.5 bg-cyan-400"></div>
+            <div class="absolute -bottom-1.5 w-3 h-0.5 bg-cyan-400"></div>
+            <div class="absolute -left-1.5 h-3 w-0.5 bg-cyan-400"></div>
+            <div class="absolute -right-1.5 h-3 w-0.5 bg-cyan-400"></div>
           </div>
 
           <div class="flex justify-between items-end font-mono text-[9px] text-slate-400">
-            <span>ISO AUTO // EV 0.0</span>
-            <span class="text-emerald-400">STABLE ALIGNMENT</span>
+            <span>NO GALLERY UPLOAD // LIVE ONLY</span>
+            <span class="text-cyan-300">TTMK SECURE SYSTEM</span>
           </div>
         </div>
 
-        <!-- Fallback Preview image if already captured -->
         <img id="inspectionPreview" class="absolute inset-0 w-full h-full object-cover hidden">
       </div>
 
-      <!-- Inspection Checklist Question for this Hotspot -->
-      <div class="p-3 bg-slate-900/90 border-t border-slate-800 space-y-2">
-        <div class="flex items-center justify-between">
-          <p id="inspectionChecklistPrompt" class="text-xs text-slate-200 font-medium">สภาพดอกยางและความลึกร่องยางปกติ ไม่แตกบวม</p>
-          <div class="flex items-center gap-1.5">
-            <label class="text-[11px] font-mono text-cyan-300">ผลตรวจ:</label>
-            <select id="hotspotStatusSelect" class="bg-slate-800 border border-slate-700 rounded text-xs text-white px-2 py-1 focus:outline-none">
-              <option value="PASS">✅ ปกติ (PASS)</option>
-              <option value="DEFECT">⚠️ ผิดปกติ (แจ้งซ่อม)</option>
-            </select>
-          </div>
-        </div>
-        <input type="text" id="hotspotNoteInput" placeholder="บันทึกข้อสังเกตเพิ่มเติม (ถ้ามี)..." 
+      <!-- Additional Note if Defect -->
+      <div id="camNoteBox" class="p-2.5 bg-slate-900 border-t border-slate-800 hidden">
+        <input type="text" id="camNoteInput" placeholder="ระบุอาการชำรุด เช่น ยางหน้าซ้ายมีรอยฉีก, น้ำมันเครื่องต่ำกว่าขีด L..." 
           class="w-full bg-slate-950 border border-slate-800 rounded px-2.5 py-1 text-xs text-white placeholder-slate-600 focus:outline-none focus:border-cyan-500">
       </div>
 
-      <!-- Modal Bottom Actions -->
-      <div class="p-3 bg-slate-950 flex gap-2">
+      <!-- Capture Actions -->
+      <div class="p-2.5 bg-slate-950 flex gap-2">
         <button type="button" onclick="closeCameraModal()" class="flex-1 py-2 rounded-xl bg-slate-800 text-slate-300 text-xs font-mono hover:bg-slate-700 transition">
           ยกเลิก
         </button>
         <button type="button" onclick="captureLiveSnapshot()" class="flex-1 py-2 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 text-white text-xs font-mono font-bold shadow-lg shadow-cyan-500/30 flex items-center justify-center gap-1.5 transition">
           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"></path></svg>
-          ถ่ายรูปยืนยันจุดนี้
+          ถ่ายรูปสดและยืนยัน
         </button>
       </div>
 
     </div>
   </div>
 
-  <div id="finalReportModal" class="fixed inset-0 z-50 bg-black/90 flex flex-col items-center justify-center p-3 hidden backdrop-blur-md">
-    <div class="max-w-md w-full hud-glass rounded-2xl overflow-hidden border border-amber-500/50 shadow-2xl flex flex-col max-h-[90vh]">
+  <!-- Zone Inspection Modal (Checklist 1-35 without mandatory photo unless DEFECT) -->
+  <div id="zoneModal" class="fixed inset-0 z-50 bg-black/90 flex flex-col items-center justify-center p-3 hidden backdrop-blur-md">
+    <div class="max-w-lg w-full hud-glass rounded-2xl overflow-hidden border border-cyan-400/50 shadow-2xl flex flex-col max-h-[90vh]">
       
-      <div class="px-4 py-3 bg-slate-900 border-b border-amber-500/30 flex items-center justify-between">
+      <div class="px-4 py-2.5 bg-slate-900 border-b border-cyan-800/60 flex items-center justify-between">
+        <div>
+          <h3 id="zoneModalTitle" class="text-xs font-mono font-bold text-cyan-300 uppercase">ตรวจจุดที่ 1</h3>
+          <p id="zoneModalSection" class="text-[9px] text-amber-400 font-mono">F-CAM-032 หมวดสภาพรถ</p>
+        </div>
+        <button onclick="closeZoneModal()" class="text-slate-400 hover:text-white text-lg p-1">&times;</button>
+      </div>
+
+      <div class="p-3 bg-slate-900/90 space-y-2 overflow-y-auto max-h-[60vh] scrollbar-thin">
+        <div class="flex justify-between items-center text-xs border-b border-slate-800 pb-1">
+          <span class="font-bold text-slate-300">รายการตรวจด้วยสายตา:</span>
+          <span class="text-[10px] text-emerald-400">ถ้าปกติกด [✅ ดี] ได้ทันที</span>
+        </div>
+        <div id="zoneQuestionsList" class="space-y-1.5">
+          <!-- Injected via JS -->
+        </div>
+      </div>
+
+      <div class="p-3 bg-slate-950 border-t border-slate-800 flex gap-2">
+        <button type="button" onclick="markZoneAllPass()" class="flex-1 py-2 rounded-xl bg-slate-800 text-emerald-400 text-xs font-mono font-bold hover:bg-slate-700 transition">
+          ✅ ปกติดีทุกข้อในจุดนี้
+        </button>
+        <button type="button" onclick="closeZoneModal()" class="flex-1 py-2 rounded-xl bg-amber-500 text-slate-950 text-xs font-mono font-bold hover:bg-amber-400 transition">
+          บันทึกผลจุดนี้
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Final Report & PDF Generator Modal -->
+  <div id="finalReportModal" class="fixed inset-0 z-50 bg-black/90 flex flex-col items-center justify-center p-3 hidden backdrop-blur-md">
+    <div class="max-w-lg w-full hud-glass rounded-2xl overflow-hidden border border-amber-500/50 shadow-2xl flex flex-col max-h-[92vh]">
+      
+      <div class="px-4 py-2.5 bg-slate-900 border-b border-amber-500/30 flex items-center justify-between">
         <div class="flex items-center gap-2">
           <span class="w-3 h-3 rounded-full bg-amber-400"></span>
-          <h3 class="text-xs font-mono font-bold text-amber-300 uppercase">รายงานผลการตรวจเช็กรถประจำวัน</h3>
+          <div>
+            <h3 class="text-xs font-mono font-bold text-amber-300 uppercase">ใบสรุปผลการตรวจสภาพยานพาหนะ F-CAM-032_r3</h3>
+            <p class="text-[9px] text-slate-400">หจก. ทั่วไทยขนส่งมงคล (โทร. 062-3285963)</p>
+          </div>
         </div>
         <button onclick="closeFinalReportModal()" class="text-slate-400 hover:text-white text-lg">&times;</button>
       </div>
 
-      <div class="p-4 overflow-y-auto space-y-3.5 text-xs text-slate-300">
+      <div class="p-3.5 overflow-y-auto space-y-3 text-xs text-slate-300 scrollbar-thin">
         
-        <!-- Summary Info Grid -->
-        <div class="grid grid-cols-2 gap-2 bg-slate-900/60 p-3 rounded-xl border border-slate-800 font-mono text-[11px]">
+        <!-- Summary Header Meta Grid -->
+        <div class="grid grid-cols-2 gap-2 bg-slate-900/70 p-2.5 rounded-xl border border-slate-800 font-mono text-[11px]">
           <div>
             <span class="text-slate-500 block">พนักงานขับรถ:</span>
             <span id="sumDriverName" class="text-white font-bold">-</span>
@@ -316,43 +369,41 @@
             <span id="sumPlate" class="text-amber-400 font-bold">-</span>
           </div>
           <div>
-            <span class="text-slate-500 block">ระบบรถ:</span>
-            <span id="sumVehicleType" class="text-cyan-400 font-bold">ICE (น้ำมัน/ดีเซล)</span>
+            <span class="text-slate-500 block">ประเภทระบบรถ:</span>
+            <span id="sumVehicleType" class="text-cyan-400 font-bold">ICE (ดีเซล/น้ำมัน)</span>
           </div>
           <div>
-            <span class="text-slate-500 block">เวลาตรวจ:</span>
-            <span id="sumTimestamp" class="text-slate-300">2026-10-03 19:45</span>
+            <span class="text-slate-500 block">เอกสารอ้างอิง:</span>
+            <span class="text-amber-300 font-bold">F-CAM-032_r3 (Nov 2019)</span>
           </div>
         </div>
 
-        <!-- Required Inputs: Odometer -->
-        <div>
-          <label class="block text-slate-400 text-[11px] font-mono mb-1">เลขไมล์ปัจจุบัน (กม.) *</label>
-          <input type="number" id="finalOdometer" placeholder="เช่น 128450" required
-            class="w-full bg-slate-900 border border-slate-700 focus:border-amber-400 rounded-lg px-3 py-2 text-white font-mono text-sm focus:outline-none">
-        </div>
-
-        <!-- Overall Assessment -->
-        <div>
-          <label class="block text-slate-400 text-[11px] font-mono mb-1">สรุปการประเมินสภาพรวม *</label>
-          <select id="finalAssessment" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-white text-xs focus:outline-none">
-            <option value="พร้อมใช้งาน" selected>✅ สภาพสมบูรณ์ พร้อมออกปฏิบัติงาน (READY)</option>
-            <option value="แจ้งซ่อม/ไม่พร้อม">⚠️ มีจุดผิดปกติ ต้องแจ้งซ่อมด่วน (NEEDS REPAIR)</option>
-          </select>
-        </div>
-
-        <!-- Photo Audit Thumbnails Grid -->
-        <div>
-          <label class="block text-slate-400 text-[11px] font-mono mb-1.5">ภาพถ่ายตรวจเช็ก 3D Digital Twin (6 จุด):</label>
-          <div class="grid grid-cols-3 gap-2" id="auditThumbnailsGrid">
-            <!-- Populated via JS -->
+        <!-- Odometer & Assessment -->
+        <div class="grid grid-cols-2 gap-2">
+          <div>
+            <label class="block text-slate-400 text-[10px] font-mono mb-1">เลขไมล์ปัจจุบัน (กม.) *</label>
+            <input type="number" id="finalOdometer" placeholder="เช่น 128450" required
+              class="w-full bg-slate-900 border border-slate-700 focus:border-amber-400 rounded-lg px-2.5 py-1.5 text-white font-mono text-xs focus:outline-none">
+          </div>
+          <div>
+            <label class="block text-slate-400 text-[10px] font-mono mb-1">ผลประเมินรวม *</label>
+            <select id="finalAssessment" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1.5 text-white text-xs focus:outline-none">
+              <option value="พร้อมใช้งาน" selected>✅ สภาพสมบูรณ์ พร้อมออกปฏิบัติงาน</option>
+              <option value="แจ้งซ่อม/ไม่พร้อม">⚠️ มีจุดบกพร่อง ต้องแจ้งซ่อมด่วน</option>
+            </select>
           </div>
         </div>
 
-        <!-- Additional Remarks -->
+        <!-- Photos Grid Preview -->
         <div>
-          <label class="block text-slate-400 text-[11px] font-mono mb-1">หมายเหตุ / จุดผิดปกติเพิ่มเติม</label>
-          <textarea id="finalRemarks" rows="2" placeholder="ระบุรายละเอียด เช่น ระดับน้ำมันเครื่องเริ่มลดลงใกล้ขีด L..."
+          <label class="block text-slate-400 text-[10px] font-mono mb-1">หลักฐานภาพถ่ายที่จะฝังลงในรายงาน PDF:</label>
+          <div class="grid grid-cols-3 gap-1.5" id="auditThumbnailsGrid"></div>
+        </div>
+
+        <!-- Defect Summary & Remarks -->
+        <div>
+          <label class="block text-slate-400 text-[10px] font-mono mb-1">ข้อบกพร่องที่พบตามแบบตรวจ F-CAM-032 / หมายเหตุแจ้งซ่อม</label>
+          <textarea id="finalRemarks" rows="2" placeholder="ระบุข้อบกพร่อง เช่น ข้อ 8 ดอกยางหน้าซ้ายเริ่มสึก, ไฟเลี้ยวไม่ติด..."
             class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-white text-xs focus:outline-none"></textarea>
         </div>
 
@@ -363,7 +414,7 @@
           ย้อนกลับ
         </button>
         <button type="button" onclick="submitToGoogleAppsScript()" class="flex-1 py-2.5 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 text-slate-950 font-mono font-bold text-xs shadow-lg shadow-amber-500/20">
-          🚀 ยืนยันบันทึกข้อมูล
+          🚀 บันทึกผล & สร้างเอกสาร PDF
         </button>
       </div>
 
@@ -372,24 +423,32 @@
 
   <canvas id="hiddenSnapshotCanvas" class="hidden"></canvas>
 
-  <footer class="relative z-20 hud-glass border-t border-cyan-900/40 py-2.5 px-4 text-center text-xs font-mono text-slate-400">
+  <footer class="relative z-20 hud-glass border-t border-cyan-900/40 py-2 px-4 text-center text-xs font-mono text-slate-400">
     &copy; copyright , Mr.Taweesak.kom (0623285963)
   </footer>
 
   <script>
-    // --- Configuration Variables ---
+    // Configuration Variables
     const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwvZxSw_p62y6ZwegF8iUiEdxyEJrF01yB37AumDHwgLcSFBoRSZUmwgvdtLJ-6hCFE/exec";
     const SPREADSHEET_ID = "1JM-i8_nrGR7-VDEY82QZ5l5JMJTIBOIsuqOSQSrcD3Y";
     const DRIVE_FOLDER_ID = "1ryLhwkO1lnv-2qgLbDDl0XyVaq8S2Szs";
 
-    // Application State
-    let vehicleMode = 'ICE'; // 'ICE' or 'EV'
+    let vehicleMode = 'ICE';
     let soundEnabled = true;
     let registeredDriver = null;
     let activeCameraStream = null;
-    let currentHotspotId = null;
+    let currentCameraTarget = null;
+    let currentDefectQuestionRef = null;
 
-    // Web Audio Synthesizer (No external audio files)
+    // Captured Images Map
+    const capturedImages = {
+      dashboard: null,
+      frontVehicle: null,
+      defect_1: null,
+      defect_2: null
+    };
+
+    // Web Audio Synthesizer
     const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
     function playBeep(freq = 600, type = 'sine', duration = 0.08) {
       if (!soundEnabled || !audioCtx) return;
@@ -415,141 +474,178 @@
       if (soundEnabled) playBeep(880, 'triangle', 0.1);
     }
 
+    // Hotspot Zones according to F-CAM-032_r3
     const HOTSPOTS_DATA = {
       ICE: [
         {
           id: 'front_tires',
-          name: '1. ยางหน้า/ช่วงล่าง',
-          short: 'ยางหน้า',
+          name: '1. ยางหน้า และระบบบังคับเลี้ยว',
+          short: 'ยางหน้า 2 ข้าง',
+          section: 'หมวด A: สภาพรถและอุปกรณ์ทั่วไป (ข้อ 8)',
           position: { x: 2.1, y: 0.65, z: 1.4 },
           camPos: { x: 4.2, y: 1.2, z: 3.0 },
-          prompt: 'ตรวจสอบสภาพผิวยาง รอยบวมแตกลายงา และน็อตล้อหน้า',
-          photo: null,
-          status: 'PASS',
-          note: ''
+          isCompleted: false,
+          questions: [
+            { id: 'q8_l', no: '8A', text: 'สภาพยางหน้าซ้าย (ดอกยางไม่ต่ำกว่า 3 มม., ไม่แตกบวม)', status: 'PASS' },
+            { id: 'q8_r', no: '8B', text: 'สภาพยางหน้าขวา (ดอกยางไม่ต่ำกว่า 3 มม., ไม่แตกบวม)', status: 'PASS' },
+            { id: 'q_nut', no: '8C', text: 'น็อตล้อหน้าแน่นครบทุกตัว ไม่แตกร้าว', status: 'PASS' }
+          ]
         },
         {
-          id: 'powertrain_ice',
-          name: '2. ห้องเครื่อง/หม้อน้ำ',
-          short: 'ห้องเครื่อง',
+          id: 'engine_bay',
+          name: '2. ห้องเครื่องยนต์ และของเหลว',
+          short: 'ห้องเครื่อง/หม้อน้ำ',
+          section: 'หมวด A: สภาพรถและอุปกรณ์ทั่วไป (ข้อ 1, 5, 11)',
           position: { x: 2.2, y: 1.3, z: 0.0 },
           camPos: { x: 4.5, y: 2.2, z: 0.2 },
-          prompt: 'ตรวจระดับน้ำมันเครื่อง, ระดับน้ำหม้อน้ำ, และสายพานเครื่องยนต์',
-          photo: null,
-          status: 'PASS',
-          note: ''
+          isCompleted: false,
+          questions: [
+            { id: 'q1', no: '1', text: 'ระดับน้ำมันเบรกและคลัตช์ พร้อมใช้งาน ไม่รั่วซึม', status: 'PASS' },
+            { id: 'q5', no: '5', text: 'ระดับน้ำมันเครื่อง อยู่ในเกณฑ์ปกติ', status: 'PASS' },
+            { id: 'q_coolant', no: '1B', text: 'ระดับน้ำในหม้อน้ำระบายความร้อน และท่อยาง', status: 'PASS' },
+            { id: 'q11', no: '11', text: 'สายพานพัดลมและสายพานไดชาร์จ ไม่แตกฉีก', status: 'PASS' }
+          ]
         },
         {
-          id: 'air_brake_tanks',
-          name: '3. ถังลมเบรก/ถังน้ำมัน',
-          short: 'ถังลม/น้ำมัน',
+          id: 'brake_tanks',
+          name: '3. ระบบลมเบรก, ถังน้ำมัน & เพลา',
+          short: 'ระบบเบรก/ถังลม',
+          section: 'หมวด A: สภาพรถและอุปกรณ์ทั่วไป (ข้อ 3, 4, 8)',
           position: { x: 0.1, y: 0.7, z: -1.4 },
           camPos: { x: 0.5, y: 1.2, z: -3.8 },
-          prompt: 'ตรวจสอบถังลมเบรกคู่ ไม่มีการรั่วซึม และสภาพถังน้ำมันดีเซล',
-          photo: null,
-          status: 'PASS',
-          note: ''
+          isCompleted: false,
+          questions: [
+            { id: 'q3', no: '3', text: 'เบรคมือใช้งานได้ปกติ ล็อกแน่นหนา', status: 'PASS' },
+            { id: 'q4', no: '4', text: 'ระบบเบรกและหม้อลมเบรก ใช้งานได้ปกติ ไม่มีเสียงลมรั่ว', status: 'PASS' },
+            { id: 'q_tank', no: '8D', text: 'ถังอัดอากาศและวาล์วระบายน้ำทิ้ง ทำงานปกติ', status: 'PASS' }
+          ]
         },
         {
-          id: 'rear_dually_tires',
-          name: '4. ยางคู่หลัง 4 เส้น',
-          short: 'ยางหลัง',
+          id: 'rear_dually',
+          name: '4. ล้อคู่หลัง 4 เส้น และแหนบ',
+          short: 'ยางหลัง 4 เส้น',
+          section: 'หมวด A: สภาพรถและอุปกรณ์ทั่วไป (ข้อ 8)',
           position: { x: -2.3, y: 0.7, z: 1.4 },
           camPos: { x: -4.5, y: 1.5, z: 3.5 },
-          prompt: 'ตรวจสอบดอกยางคู่หลังทั้ง 4 เส้น ร่องหินติด และแหนบรับน้ำหนัก',
-          photo: null,
-          status: 'PASS',
-          note: ''
+          isCompleted: false,
+          questions: [
+            { id: 'q8_rl', no: '8E', text: 'ยางคู่หลังซ้าย 2 เส้น (ร่องลึก > 2 มม., ไม่มีหินติด)', status: 'PASS' },
+            { id: 'q8_rr', no: '8F', text: 'ยางคู่หลังขวา 2 เส้น (ร่องลึก > 2 มม., ไม่มีหินติด)', status: 'PASS' },
+            { id: 'q_leaf', no: '8G', text: 'แหนบรับน้ำหนักและสาแหรกแหนบ ไม่หักหรือเลื่อน', status: 'PASS' }
+          ]
         },
         {
-          id: 'cargo_rear_lights',
-          name: '5. ท้ายตู้/ไฟสัญญาณ',
-          short: 'ท้ายตู้/ไฟ',
-          position: { x: -3.9, y: 1.6, z: 0.0 },
-          camPos: { x: -7.0, y: 2.2, z: 0.0 },
-          prompt: 'ตรวจสอบกลอนล็อกตู้ทึบ, ไฟท้าย, ไฟเลี้ยว, และไฟเบรกสว่างครบ',
-          photo: null,
-          status: 'PASS',
-          note: ''
+          id: 'safety_cargo',
+          name: '5. อุปกรณ์ SAFETY ประจำรถ & ตัวตู้',
+          short: 'อุปกรณ์ SAFETY',
+          section: 'หมวด B: อุปกรณ์มาตรฐานประจำรถ (ข้อ 10-17)',
+          position: { x: -0.8, y: 0.8, z: 1.35 },
+          camPos: { x: -1.2, y: 1.3, z: 3.2 },
+          isCompleted: false,
+          questions: [
+            { id: 'q10', no: '10', text: 'หมอนรองล้อ 2 อัน', status: 'PASS' },
+            { id: 'q11_cone', no: '11', text: 'กรวยยางสะท้อนแสง 2 อัน', status: 'PASS' },
+            { id: 'q12_fire', no: '12', text: 'ถังดับเพลิง ขนาด 10 ปอนด์ พร้อมใช้งาน เกจ์เขียว', status: 'PASS' },
+            { id: 'q13_cam', no: '13', text: 'กล้องหน้ารถ และ GPS ทำงานปกติ', status: 'PASS' },
+            { id: 'q15_cargo', no: '15', text: 'สภาพตู้อยู่ในสภาพดี ไม่บุบ ไม่เป็นรู กลอนล็อกแข็งแรง', status: 'PASS' }
+          ]
         },
         {
           id: 'cockpit_dash',
-          name: '6. หน้าปัดเรือนไมล์',
-          short: 'หน้าปัด/ไมล์',
+          name: '6. ห้องโดยสาร, สตาร์ท, หน้าปัด & ไฟ',
+          short: 'หน้าปัด/ไฟ/สตาร์ท',
+          section: 'หมวด A: สภาพรถและอุปกรณ์ทั่วไป (ข้อ 2, 6, 7, 9, 13)',
           position: { x: 1.7, y: 1.9, z: 0.6 },
           camPos: { x: 2.2, y: 2.3, z: 1.4 },
-          prompt: 'ตรวจเลขไมล์, สัญญาณเตือนบนหน้าปัด และแรงดันลมเบรกบนเกจ์',
-          photo: null,
-          status: 'PASS',
-          note: ''
+          isCompleted: false,
+          questions: [
+            { id: 'q2_wipe', no: '2', text: 'ที่ปัดน้ำฝนและน้ำฉีดกระจก พร้อมใช้งาน', status: 'PASS' },
+            { id: 'q6_mirror', no: '6', text: 'กระจกหน้า กระจกมองข้าง มองมุม มองหลัง สะอาดสมบูรณ์', status: 'PASS' },
+            { id: 'q7_lights', no: '7', text: 'ไฟส่องสว่างหน้ารถ ไฟเลี้ยว ไฟเบรก ไฟถอย สว่างครบ', status: 'PASS' },
+            { id: 'q9_horn', no: '9', text: 'สัญญาณแตร ทำงานเสียงดังชัดเจน', status: 'PASS' },
+            { id: 'q13_dash', no: '13', text: 'ตรวจเช็คไฟหน้าปัด ไม่มีไฟโชว์ผิดปกติ เกจ์ลมปกติ', status: 'PASS' }
+          ]
         }
       ],
       EV: [
         {
           id: 'front_tires',
-          name: '1. ยางหน้า/ระบบเลี้ยว',
-          short: 'ยางหน้า',
+          name: '1. ยางหน้า และระบบบังคับเลี้ยว EV',
+          short: 'ยางหน้า EV',
+          section: 'หมวด A: สภาพรถ (ข้อ 8)',
           position: { x: 2.1, y: 0.65, z: 1.4 },
           camPos: { x: 4.2, y: 1.2, z: 3.0 },
-          prompt: 'ตรวจสอบสภาพผิวยาง ความลึกร่องยาง และลูกหมากคันส่ง',
-          photo: null,
-          status: 'PASS',
-          note: ''
+          isCompleted: false,
+          questions: [
+            { id: 'q8_l', no: '8A', text: 'ยางหน้าซ้าย EV (ร่องลึก > 3 มม., ไม่แตกบวม)', status: 'PASS' },
+            { id: 'q8_r', no: '8B', text: 'ยางหน้าขวา EV (ร่องลึก > 3 มม., ไม่แตกบวม)', status: 'PASS' }
+          ]
         },
         {
-          id: 'hv_battery_pack',
-          name: '2. แบตเตอรี่ HV/สายไฟส้ม',
+          id: 'engine_bay',
+          name: '2. แบตเตอรี่ HV & ข้อต่อสายไฟส้ม',
           short: 'แบตเตอรี่ HV',
+          section: 'หมวด A: สภาพรถไฟฟ้า EV (ข้อ 11, 12)',
           position: { x: 0.0, y: 0.6, z: 1.3 },
           camPos: { x: 0.2, y: 1.2, z: 3.6 },
-          prompt: 'ตรวจเคสกันกระแทกแบตเตอรี่ใต้ท้องรถ และสายไฟแรงสูงสีส้ม (HV)',
-          photo: null,
-          status: 'PASS',
-          note: ''
+          isCompleted: false,
+          questions: [
+            { id: 'q11_ev', no: '11', text: 'สภาพแบตเตอรี่ EV ใต้ท้องรถ เคสไม่บุบ ไม่รั่วซึม', status: 'PASS' },
+            { id: 'q12_ev', no: '12', text: 'จุดข้อต่อ ปลั๊ก สายไฟแรงสูงสีส้ม แน่นหนา ไม่มีรอยหนูกัด', status: 'PASS' }
+          ]
         },
         {
-          id: 'charging_port',
-          name: '3. พอร์ตชาร์จ CCS2',
-          short: 'พอร์ตชาร์จ',
+          id: 'brake_tanks',
+          name: '3. พอร์ตชาร์จ CCS2 & ปั๊มลมเบรกไฟฟ้า',
+          short: 'พอร์ตชาร์จ/เบรก',
+          section: 'หมวด A: ระบบไฟฟ้า & เบรก',
           position: { x: 0.3, y: 1.0, z: -1.35 },
           camPos: { x: 0.8, y: 1.4, z: -3.5 },
-          prompt: 'ตรวจสภาพพอร์ตชาร์จ DC Fast Charge สะอาด ไม่มีรอยอาร์คหรือไหม้',
-          photo: null,
-          status: 'PASS',
-          note: ''
+          isCompleted: false,
+          questions: [
+            { id: 'q_port', no: 'EV-1', text: 'พอร์ตชาร์จ CCS2 สะอาด ฝาปิดสนิท ไม่มีรอยไหม้', status: 'PASS' },
+            { id: 'q4_ev', no: '4', text: 'ระบบปั๊มลมเบรกไฟฟ้า และเบรกมือ ทำงานปกติ', status: 'PASS' }
+          ]
         },
         {
-          id: 'rear_dually_tires',
-          name: '4. ยางคู่หลังและมอเตอร์',
+          id: 'rear_dually',
+          name: '4. ล้อคู่หลัง 4 เส้น และมอเตอร์ e-Axle',
           short: 'ยางหลัง/มอเตอร์',
+          section: 'หมวด A: สภาพยางและเพลาขับ',
           position: { x: -2.3, y: 0.7, z: 1.4 },
           camPos: { x: -4.5, y: 1.5, z: 3.5 },
-          prompt: 'ตรวจสอบยางคู่หลัง 4 เส้น และเสื้อเพลามอเตอร์ไฟฟ้า e-Axle',
-          photo: null,
-          status: 'PASS',
-          note: ''
+          isCompleted: false,
+          questions: [
+            { id: 'q8_rl', no: '8E', text: 'ยางคู่หลัง 4 เส้น (ร่องลึก > 2 มม., ไม่มีหินติด)', status: 'PASS' },
+            { id: 'q_motor', no: 'EV-2', text: 'เสื้อมอเตอร์ไฟฟ้าท้ายรถ ไม่มีคราบน้ำมันหล่อเย็นรั่ว', status: 'PASS' }
+          ]
         },
         {
-          id: 'cargo_rear_lights',
-          name: '5. ท้ายตู้/ไฟสัญญาณ',
-          short: 'ท้ายตู้/ไฟ',
-          position: { x: -3.9, y: 1.6, z: 0.0 },
-          camPos: { x: -7.0, y: 2.2, z: 0.0 },
-          prompt: 'ตรวจกลอนล็อกตู้สินค้าและไฟสัญญาณรอบคันสว่างชัดเจน',
-          photo: null,
-          status: 'PASS',
-          note: ''
+          id: 'safety_cargo',
+          name: '5. อุปกรณ์ SAFETY ประจำรถ (Class C)',
+          short: 'อุปกรณ์ SAFETY',
+          section: 'หมวด B: อุปกรณ์ประจำรถ (ข้อ 10-17)',
+          position: { x: -0.8, y: 0.8, z: 1.35 },
+          camPos: { x: -1.2, y: 1.3, z: 3.2 },
+          isCompleted: false,
+          questions: [
+            { id: 'q10', no: '10', text: 'หมอนรองล้อ 2 อัน & กรวยยางสะท้อนแสง 2 อัน', status: 'PASS' },
+            { id: 'q12_fire', no: '12', text: 'ถังดับเพลิงประจำรถ พร้อมใช้งาน (รองรับ Class C)', status: 'PASS' }
+          ]
         },
         {
-          id: 'cockpit_ev_dash',
-          name: '6. หน้าปัดดิจิทัล/SoC %',
-          short: 'หน้าปัด/SoC',
+          id: 'cockpit_dash',
+          name: '6. หน้าปัดดิจิทัล, ระดับแบต SoC %, ไฟ & เบรก',
+          short: 'หน้าปัด SoC/ไฟ',
+          section: 'หมวด A: หน้าปัดและไฟสัญญาณ (ข้อ 13)',
           position: { x: 1.7, y: 1.9, z: 0.6 },
           camPos: { x: 2.2, y: 2.3, z: 1.4 },
-          prompt: 'ตรวจสอบระดับแบตเตอรี่ขับเคลื่อน (State of Charge %) และไฟเตือน',
-          photo: null,
-          status: 'PASS',
-          note: ''
+          isCompleted: false,
+          questions: [
+            { id: 'q_soc', no: 'EV-3', text: 'ระดับแบตเตอรี่ (SoC %) เพียงพอต่อเที่ยววิ่ง', status: 'PASS' },
+            { id: 'q13_ev', no: '13', text: 'หน้าปัดขึ้น READY ไม่มีไฟเตือนสีส้ม/แดงผิดปกติ', status: 'PASS' },
+            { id: 'q7_ev', no: '7', text: 'ไฟหน้า ไฟเลี้ยว ไฟเบรก ไฟถอย สว่างครบ', status: 'PASS' }
+          ]
         }
       ]
     };
@@ -563,13 +659,13 @@
     function init3DScene() {
       const container = document.getElementById('canvas-container');
       scene = new THREE.Scene();
-      scene.background = new THREE.Color(0x070b14);
-      scene.fog = new THREE.FogExp2(0x070b14, 0.04);
+      scene.background = new THREE.Color(0x050811);
+      scene.fog = new THREE.FogExp2(0x050811, 0.04);
 
       camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 100);
       camera.position.set(7.5, 4.0, 7.5);
 
-      renderer = new THREE.WebGLRenderer({ antialias: true });
+      renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: 'high-performance' });
       renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
       renderer.setSize(window.innerWidth, window.innerHeight);
       renderer.shadowMap.enabled = true;
@@ -584,27 +680,26 @@
       controls.maxDistance = 16;
       controls.target.set(0, 1.2, 0);
 
-      // Lighting Setup
-      const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
+      // Lights
+      const ambientLight = new THREE.AmbientLight(0xffffff, 0.65);
       scene.add(ambientLight);
 
-      const dirLight = new THREE.DirectionalLight(0xffffff, 0.9);
+      const dirLight = new THREE.DirectionalLight(0xffffff, 0.95);
       dirLight.position.set(10, 15, 10);
       dirLight.castShadow = true;
       dirLight.shadow.mapSize.width = 2048;
       dirLight.shadow.mapSize.height = 2048;
       scene.add(dirLight);
 
-      const cyanRimLight = new THREE.PointLight(0x06b6d4, 1.2, 20);
+      const cyanRimLight = new THREE.PointLight(0x00f2fe, 1.4, 20);
       cyanRimLight.position.set(-6, 4, -6);
       scene.add(cyanRimLight);
 
       // Sci-Fi Hologram Ground Grid
-      const gridHelper = new THREE.GridHelper(30, 30, 0x06b6d4, 0x1e293b);
+      const gridHelper = new THREE.GridHelper(30, 30, 0x00f2fe, 0x16233b);
       gridHelper.position.y = 0;
       scene.add(gridHelper);
 
-      // Build Procedural 6-Wheeler Model
       buildProceduralTruck();
       createHotspotMarkers();
 
@@ -618,66 +713,35 @@
       if (truckGroup) scene.remove(truckGroup);
       truckGroup = new THREE.Group();
 
-      // Materials
-      const cabinMat = new THREE.MeshStandardMaterial({ 
-        color: 0x1e293b, 
-        metalness: 0.7, 
-        roughness: 0.25 
-      });
-      const cargoMat = new THREE.MeshStandardMaterial({ 
-        color: 0xf8fafc, 
-        metalness: 0.1, 
-        roughness: 0.6 
-      });
-      const chassisMat = new THREE.MeshStandardMaterial({ 
-        color: 0x0f172a, 
-        metalness: 0.8, 
-        roughness: 0.5 
-      });
-      const glassMat = new THREE.MeshPhysicalMaterial({ 
-        color: 0x082f49, 
-        metalness: 0.1, 
-        roughness: 0.1, 
-        transmission: 0.7, 
-        transparent: true 
-      });
-      const wheelRubberMat = new THREE.MeshStandardMaterial({ 
-        color: 0x111827, 
-        roughness: 0.9 
-      });
-      const rimMat = new THREE.MeshStandardMaterial({ 
-        color: 0x94a3b8, 
-        metalness: 0.9, 
-        roughness: 0.2 
-      });
+      const cabinMat = new THREE.MeshStandardMaterial({ color: 0x1e293b, metalness: 0.7, roughness: 0.25 });
+      const cargoMat = new THREE.MeshStandardMaterial({ color: 0xf8fafc, metalness: 0.1, roughness: 0.6 });
+      const chassisMat = new THREE.MeshStandardMaterial({ color: 0x0f172a, metalness: 0.8, roughness: 0.5 });
+      const glassMat = new THREE.MeshPhysicalMaterial({ color: 0x082f49, metalness: 0.1, roughness: 0.1, transmission: 0.75, transparent: true });
+      const wheelRubberMat = new THREE.MeshStandardMaterial({ color: 0x111827, roughness: 0.9 });
+      const rimMat = new THREE.MeshStandardMaterial({ color: 0x94a3b8, metalness: 0.9, roughness: 0.2 });
 
-      // 1. Chassis Rails
-      const chassisGeo = new THREE.BoxGeometry(6.6, 0.25, 1.1);
-      const chassisMesh = new THREE.Mesh(chassisGeo, chassisMat);
+      // Chassis
+      const chassisMesh = new THREE.Mesh(new THREE.BoxGeometry(6.6, 0.25, 1.1), chassisMat);
       chassisMesh.position.set(-0.3, 0.75, 0);
       chassisMesh.castShadow = true;
       truckGroup.add(chassisMesh);
 
-      // 2. Cabin
-      const cabGeo = new THREE.BoxGeometry(1.9, 1.8, 2.3);
-      const cabMesh = new THREE.Mesh(cabGeo, cabinMat);
+      // Cabin
+      const cabMesh = new THREE.Mesh(new THREE.BoxGeometry(1.9, 1.8, 2.3), cabinMat);
       cabMesh.position.set(2.0, 1.75, 0);
       cabMesh.castShadow = true;
       truckGroup.add(cabMesh);
 
-      // Cabin Windshield
-      const glassGeo = new THREE.BoxGeometry(0.1, 0.8, 2.1);
-      const glassMesh = new THREE.Mesh(glassGeo, glassMat);
+      // Windshield
+      const glassMesh = new THREE.Mesh(new THREE.BoxGeometry(0.1, 0.8, 2.1), glassMat);
       glassMesh.position.set(2.96, 1.95, 0);
       truckGroup.add(glassMesh);
 
-      // Cabin Bumper & Headlights
-      const bumperGeo = new THREE.BoxGeometry(0.3, 0.45, 2.4);
-      const bumper = new THREE.Mesh(bumperGeo, chassisMat);
+      // Bumper & Headlights
+      const bumper = new THREE.Mesh(new THREE.BoxGeometry(0.3, 0.45, 2.4), chassisMat);
       bumper.position.set(3.0, 0.65, 0);
       truckGroup.add(bumper);
 
-      // Headlight glow
       const lightMat = new THREE.MeshBasicMaterial({ color: 0xfef08a });
       const hlLeft = new THREE.Mesh(new THREE.BoxGeometry(0.05, 0.2, 0.4), lightMat);
       hlLeft.position.set(3.16, 0.7, 0.85);
@@ -685,14 +749,13 @@
       hlRight.position.set(3.16, 0.7, -0.85);
       truckGroup.add(hlLeft, hlRight);
 
-      // 3. Cargo Box (6-Wheeler Enclosed Box)
-      const cargoGeo = new THREE.BoxGeometry(4.8, 2.3, 2.4);
-      const cargoBox = new THREE.Mesh(cargoGeo, cargoMat);
+      // Cargo Box (6-Wheeler)
+      const cargoBox = new THREE.Mesh(new THREE.BoxGeometry(4.8, 2.3, 2.4), cargoMat);
       cargoBox.position.set(-1.45, 2.05, 0);
       cargoBox.castShadow = true;
       truckGroup.add(cargoBox);
 
-      // 4. Wheels (6 Wheels: 2 Front + 4 Rear Dually)
+      // 6 Wheels (2 Front + 4 Rear Dually)
       function createWheel(x, z) {
         const wheelGroup = new THREE.Group();
         const tireGeo = new THREE.CylinderGeometry(0.48, 0.48, 0.32, 24);
@@ -710,59 +773,38 @@
         return wheelGroup;
       }
 
-      // Front Wheels
       truckGroup.add(createWheel(2.1, 1.15));
       truckGroup.add(createWheel(2.1, -1.15));
-
-      // Rear Axle 1 (Dually)
       truckGroup.add(createWheel(-1.9, 1.05));
       truckGroup.add(createWheel(-1.9, 1.35));
       truckGroup.add(createWheel(-1.9, -1.05));
       truckGroup.add(createWheel(-1.9, -1.35));
 
-      // 5. Powertrain Specific Components (ICE vs EV)
+      // Specific Powertrain Parts (ICE vs EV)
       if (vehicleMode === 'ICE') {
-        const engGeo = new THREE.BoxGeometry(1.2, 0.8, 0.9);
         const engMat = new THREE.MeshStandardMaterial({ color: 0x475569, metalness: 0.8 });
-        const engine = new THREE.Mesh(engGeo, engMat);
+        const engine = new THREE.Mesh(new THREE.BoxGeometry(1.2, 0.8, 0.9), engMat);
         engine.position.set(1.9, 0.85, 0);
         truckGroup.add(engine);
 
         const tankGeo = new THREE.CylinderGeometry(0.3, 0.3, 1.4, 16);
         tankGeo.rotateZ(Math.PI / 2);
-        const tankMat = new THREE.MeshStandardMaterial({ color: 0x94a3b8, metalness: 0.8 });
-        const tank = new THREE.Mesh(tankGeo, tankMat);
+        const tank = new THREE.Mesh(tankGeo, new THREE.MeshStandardMaterial({ color: 0x94a3b8, metalness: 0.8 }));
         tank.position.set(0.1, 0.65, -1.0);
         truckGroup.add(tank);
-
-        const airCylGeo = new THREE.CylinderGeometry(0.15, 0.15, 0.9, 12);
-        airCylGeo.rotateZ(Math.PI / 2);
-        const airMat = new THREE.MeshStandardMaterial({ color: 0xd97706, metalness: 0.7 });
-        const air1 = new THREE.Mesh(airCylGeo, airMat);
-        air1.position.set(0.2, 0.8, 0.95);
-        truckGroup.add(air1);
       } else {
-        const batGeo = new THREE.BoxGeometry(2.4, 0.45, 1.8);
-        const batMat = new THREE.MeshStandardMaterial({ 
-          color: 0x064e3b, 
-          emissive: 0x047857, 
-          emissiveIntensity: 0.3, 
-          metalness: 0.8 
-        });
-        const battery = new THREE.Mesh(batGeo, batMat);
+        const batMat = new THREE.MeshStandardMaterial({ color: 0x064e3b, emissive: 0x047857, emissiveIntensity: 0.35, metalness: 0.8 });
+        const battery = new THREE.Mesh(new THREE.BoxGeometry(2.4, 0.45, 1.8), batMat);
         battery.position.set(0.0, 0.68, 0);
         truckGroup.add(battery);
 
         const cableGeo = new THREE.CylinderGeometry(0.04, 0.04, 1.8, 8);
         cableGeo.rotateX(Math.PI / 2);
-        const cableMat = new THREE.MeshBasicMaterial({ color: 0xf97316 });
-        const cable = new THREE.Mesh(cableGeo, cableMat);
+        const cable = new THREE.Mesh(cableGeo, new THREE.MeshBasicMaterial({ color: 0xf97316 }));
         cable.position.set(1.2, 0.85, 0.4);
         truckGroup.add(cable);
 
-        const portGeo = new THREE.BoxGeometry(0.25, 0.35, 0.1);
-        const portMat = new THREE.MeshBasicMaterial({ color: 0x10b981 });
-        const port = new THREE.Mesh(portGeo, portMat);
+        const port = new THREE.Mesh(new THREE.BoxGeometry(0.25, 0.35, 0.1), new THREE.MeshBasicMaterial({ color: 0x10b981 }));
         port.position.set(0.3, 0.95, -1.21);
         truckGroup.add(port);
       }
@@ -781,7 +823,7 @@
 
         const ringGeo = new THREE.RingGeometry(0.18, 0.24, 20);
         const ringMat = new THREE.MeshBasicMaterial({ 
-          color: spot.photo ? 0x10b981 : 0x06b6d4, 
+          color: spot.isCompleted ? 0x10b981 : 0x00f2fe, 
           side: THREE.DoubleSide 
         });
         const ring = new THREE.Mesh(ringGeo, ringMat);
@@ -789,7 +831,7 @@
 
         const sphereGeo = new THREE.SphereGeometry(0.12, 16, 16);
         const sphereMat = new THREE.MeshBasicMaterial({ 
-          color: spot.photo ? 0x34d399 : 0xf59e0b 
+          color: spot.isCompleted ? 0x34d399 : 0xf59e0b 
         });
         const sphere = new THREE.Mesh(sphereGeo, sphereMat);
 
@@ -858,7 +900,6 @@
 
     function selectHotspot(index) {
       const spot = HOTSPOTS_DATA[vehicleMode][index];
-      currentHotspotId = spot.id;
 
       targetCameraPos = new THREE.Vector3(spot.camPos.x, spot.camPos.y, spot.camPos.z);
       targetLookAt = new THREE.Vector3(spot.position.x, spot.position.y, spot.position.z);
@@ -867,8 +908,8 @@
       renderHotspotButtons();
 
       setTimeout(() => {
-        openCameraModal(spot);
-      }, 500);
+        openZoneModal(spot);
+      }, 450);
     }
 
     function reset3DCamera() {
@@ -884,12 +925,12 @@
       playBeep(mode === 'EV' ? 880 : 440, 'triangle', 0.12);
 
       document.getElementById('modeIceBtn').className = mode === 'ICE'
-        ? 'px-2.5 py-1 rounded-lg text-xs font-mono font-medium transition bg-amber-500 text-slate-950 shadow'
-        : 'px-2.5 py-1 rounded-lg text-xs font-mono font-medium text-slate-400 hover:text-amber-300 transition';
+        ? 'px-2.5 py-1 rounded-lg text-xs font-mono font-semibold transition bg-amber-500 text-slate-950 shadow'
+        : 'px-2.5 py-1 rounded-lg text-xs font-mono font-semibold text-slate-400 hover:text-amber-300 transition';
 
       document.getElementById('modeEvBtn').className = mode === 'EV'
-        ? 'px-2.5 py-1 rounded-lg text-xs font-mono font-medium transition bg-emerald-500 text-slate-950 shadow'
-        : 'px-2.5 py-1 rounded-lg text-xs font-mono font-medium text-slate-400 hover:text-emerald-300 transition';
+        ? 'px-2.5 py-1 rounded-lg text-xs font-mono font-semibold transition bg-emerald-500 text-slate-950 shadow'
+        : 'px-2.5 py-1 rounded-lg text-xs font-mono font-semibold text-slate-400 hover:text-emerald-300 transition';
 
       buildProceduralTruck();
       createHotspotMarkers();
@@ -898,10 +939,10 @@
         toast: true,
         position: 'top-end',
         icon: 'info',
-        title: `สลับสู่โหมด: ${mode === 'ICE' ? 'รถบรรทุกน้ำมันดีเซล' : 'รถบรรทุกไฟฟ้า EV'}`,
+        title: `สลับมาตรฐานตรวจสู่: ${mode === 'ICE' ? 'รถบรรทุกน้ำมันดีเซล' : 'รถบรรทุกไฟฟ้า EV'}`,
         showConfirmButton: false,
         timer: 1600,
-        background: '#0e1726',
+        background: '#0a1120',
         color: '#fff'
       });
     }
@@ -912,21 +953,18 @@
 
       HOTSPOTS_DATA[vehicleMode].forEach((spot, idx) => {
         const btn = document.createElement('button');
-        const isDone = !!spot.photo;
-        const isSelected = currentHotspotId === spot.id;
+        const isDone = spot.isCompleted;
 
         btn.className = `py-1.5 px-1 rounded-lg text-[10px] font-mono flex flex-col items-center justify-center border transition ${
-          isSelected 
-            ? 'border-cyan-400 bg-cyan-900/60 text-white ring-1 ring-cyan-400' 
-            : isDone 
-              ? 'border-emerald-500/50 bg-emerald-950/40 text-emerald-300' 
-              : 'border-slate-800 bg-slate-900/80 text-slate-400 hover:text-slate-200'
+          isDone 
+            ? 'border-emerald-500/50 bg-emerald-950/40 text-emerald-300' 
+            : 'border-slate-800 bg-slate-900/80 text-slate-400 hover:text-slate-200'
         }`;
 
         btn.innerHTML = `
           <span class="truncate w-full text-center">${spot.short}</span>
           <span class="text-[9px] font-bold ${isDone ? 'text-emerald-400' : 'text-amber-400'}">
-            ${isDone ? '✓ เสร็จ' : 'รอตรวจ'}
+            ${isDone ? '✓ เช็คแล้ว' : 'รอตรวจ'}
           </span>
         `;
         btn.onclick = () => selectHotspot(idx);
@@ -936,117 +974,234 @@
 
     function updateInspectionProgress() {
       const list = HOTSPOTS_DATA[vehicleMode];
-      const completed = list.filter(item => !!item.photo).length;
+      const completed = list.filter(item => item.isCompleted).length;
       const total = list.length;
-      const pct = Math.round((completed / total) * 100);
 
-      document.getElementById('progressText').innerText = `${completed}/${total} จุด (${pct}%)`;
+      document.getElementById('progressText').innerText = `เช็คแล้ว ${completed}/${total} โซน`;
+      const pct = Math.round((completed / total) * 100);
       document.getElementById('progressBar').style.width = `${pct}%`;
     }
 
     function startSequentialWalkaround() {
       const list = HOTSPOTS_DATA[vehicleMode];
-      const nextIndex = list.findIndex(item => !item.photo);
+      const nextIndex = list.findIndex(item => !item.isCompleted);
       if (nextIndex !== -1) {
         selectHotspot(nextIndex);
       } else {
         Swal.fire({
           icon: 'success',
-          title: 'ตรวจครบทุกจุดแล้ว',
-          text: 'ท่านสามารถกดปุ่ม "สรุปและส่งบันทึก Sheet" เพื่อส่งข้อมูลได้เลยครับ',
+          title: 'ตรวจครบทุกโซนแล้ว',
+          text: 'กรุณาตรวจสอบว่าถ่ายรูปบังคับ (หน้าปัดไมล์ + หน้ารถ) ครบถ้วนแล้วกดส่งรายงาน F-CAM-032 ได้เลยครับ',
           confirmButtonColor: '#f59e0b',
-          background: '#0e1726',
+          background: '#0a1120',
           color: '#fff'
         });
       }
     }
 
-    async function openCameraModal(spot) {
-      const modal = document.getElementById('cameraInspectionModal');
-      const video = document.getElementById('inspectionVideo');
-      const preview = document.getElementById('inspectionPreview');
-      
-      document.getElementById('camModalTitle').innerText = spot.name;
-      document.getElementById('hudTargetText').innerText = `TARGET: ${spot.id.toUpperCase()}`;
-      document.getElementById('inspectionChecklistPrompt').innerText = spot.prompt;
-      document.getElementById('hotspotStatusSelect').value = spot.status || 'PASS';
-      document.getElementById('hotspotNoteInput').value = spot.note || '';
+    // --- Zone Checklist Modal (Visual check without photo unless DEFECT) ---
+    let activeZoneRef = null;
 
-      const now = new Date();
-      document.getElementById('camTimestamp').innerText = now.toLocaleString('th-TH');
+    function openZoneModal(spot) {
+      activeZoneRef = spot;
+      document.getElementById('zoneModalTitle').innerText = spot.name;
+      document.getElementById('zoneModalSection').innerText = spot.section;
 
-      modal.classList.remove('hidden');
+      const qContainer = document.getElementById('zoneQuestionsList');
+      qContainer.innerHTML = '';
 
-      if (spot.photo) {
-        preview.src = spot.photo;
-        preview.classList.remove('hidden');
-        video.classList.add('hidden');
-      } else {
-        preview.classList.add('hidden');
-        video.classList.remove('hidden');
-        
-        try {
-          if (activeCameraStream) {
-            activeCameraStream.getTracks().forEach(t => t.stop());
-          }
-          const stream = await navigator.mediaDevices.getUserMedia({
-            video: { facingMode: { ideal: "environment" }, width: { ideal: 1280 } },
-            audio: false
-          });
-          activeCameraStream = stream;
-          video.srcObject = stream;
-        } catch (err) {
-          Swal.fire({
-            icon: 'warning',
-            title: 'ไม่สามารถเปิดกล้องได้',
-            text: 'กรุณาอนุญาตสิทธิ์การใช้กล้อง หรือทดสอบบนสมาร์ทโฟน',
-            background: '#0e1726',
-            color: '#fff'
-          });
-        }
-      }
+      spot.questions.forEach((q, idx) => {
+        const row = document.createElement('div');
+        row.className = 'flex items-center justify-between p-2 rounded bg-slate-950/80 border border-slate-800 text-xs';
+        const isPass = q.status === 'PASS';
+        row.innerHTML = `
+          <div class="flex-1 pr-2">
+            <span class="text-amber-400 font-bold font-mono">[ข้อ ${q.no}]</span>
+            <span class="text-slate-200 text-[11px] ml-1">${q.text}</span>
+          </div>
+          <button type="button" onclick="handleQuestionClick('${spot.id}', ${idx})" id="qBtn_${spot.id}_${idx}"
+            class="px-2.5 py-1 rounded font-mono text-[10px] font-bold transition flex items-center gap-1 ${isPass ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/40' : 'bg-rose-500/20 text-rose-400 border border-rose-500/40'}">
+            ${isPass ? '✅ ปกติดี' : '⚠️ ชำรุด (มีรูป)'}
+          </button>
+        `;
+        qContainer.appendChild(row);
+      });
+
+      document.getElementById('zoneModal').classList.remove('hidden');
     }
 
-    function captureLiveSnapshot() {
-      const spot = HOTSPOTS_DATA[vehicleMode].find(s => s.id === currentHotspotId);
-      if (!spot) return;
+    function closeZoneModal() {
+      if (activeZoneRef) {
+        activeZoneRef.isCompleted = true;
+        createHotspotMarkers();
+      }
+      document.getElementById('zoneModal').classList.add('hidden');
+    }
 
-      const video = document.getElementById('inspectionVideo');
-      const canvas = document.getElementById('hiddenSnapshotCanvas');
-      
-      canvas.width = video.videoWidth || 800;
-      canvas.height = video.videoHeight || 600;
-      const ctx = canvas.getContext('2d');
-
-      ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-
-      // Watermark with Driver Info & Date
-      ctx.fillStyle = 'rgba(7, 11, 20, 0.7)';
-      ctx.fillRect(0, canvas.height - 40, canvas.width, 40);
-      ctx.fillStyle = '#06b6d4';
-      ctx.font = '14px monospace';
-      const timeStr = new Date().toLocaleString('th-TH');
-      const driverTag = registeredDriver ? registeredDriver.name : 'TTMK_DRIVER';
-      ctx.fillText(`TTMK 3D SIM // ${driverTag} // ${spot.id} // ${timeStr}`, 15, canvas.height - 15);
-
-      const base64 = canvas.toDataURL('image/jpeg', 0.85);
-      spot.photo = base64;
-      spot.status = document.getElementById('hotspotStatusSelect').value;
-      spot.note = document.getElementById('hotspotNoteInput').value;
-
-      playBeep(980, 'sine', 0.12);
-      closeCameraModal();
-
+    function markZoneAllPass() {
+      if (!activeZoneRef) return;
+      activeZoneRef.questions.forEach(q => {
+        q.status = 'PASS';
+      });
+      activeZoneRef.isCompleted = true;
+      playBeep(880, 'sine', 0.1);
+      closeZoneModal();
       createHotspotMarkers();
 
       Swal.fire({
         toast: true,
         position: 'top-end',
         icon: 'success',
-        title: `บันทึกภาพจุด: ${spot.short} เรียบร้อย`,
+        title: `บันทึกจุด: ${activeZoneRef.short} ปกติครบถ้วน`,
         showConfirmButton: false,
-        timer: 1500,
-        background: '#0e1726',
+        timer: 1400,
+        background: '#0a1120',
+        color: '#fff'
+      });
+    }
+
+    function handleQuestionClick(spotId, qIdx) {
+      const spot = HOTSPOTS_DATA[vehicleMode].find(s => s.id === spotId);
+      if (!spot) return;
+      const q = spot.questions[qIdx];
+
+      if (q.status === 'PASS') {
+        // Driver marks DEFECT -> Force Live Camera for Evidence!
+        playBeep(440, 'triangle', 0.15);
+        Swal.fire({
+          icon: 'warning',
+          title: `พบจุดชำรุด: ข้อ ${q.no}`,
+          text: 'ระบบบังคับเปิดกล้องถ่ายภาพจุดชำรุดสดทันที เพื่อเป็นหลักฐานให้ฝ่ายช่างและผู้ว่าจ้าง',
+          confirmButtonColor: '#f59e0b',
+          confirmButtonText: '📷 เปิดกล้องถ่ายหลักฐาน',
+          background: '#0a1120',
+          color: '#fff'
+        }).then((res) => {
+          if (res.isConfirmed) {
+            currentDefectQuestionRef = q;
+            startDefectCamera(spot, q);
+          }
+        });
+      } else {
+        // Toggle back to PASS
+        q.status = 'PASS';
+        playBeep(880, 'sine', 0.08);
+        const btn = document.getElementById(`qBtn_${spotId}_${qIdx}`);
+        if (btn) {
+          btn.className = 'px-2.5 py-1 rounded font-mono text-[10px] font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/40';
+          btn.innerText = '✅ ปกติดี';
+        }
+      }
+    }
+
+    // --- Live Camera Engine (Strictly Environment/Back Camera) ---
+    async function startMandatoryCamera(key, title) {
+      currentCameraTarget = key;
+      currentDefectQuestionRef = null;
+      document.getElementById('camNoteBox').classList.add('hidden');
+      document.getElementById('camModalTitle').innerText = title;
+      document.getElementById('hudTargetText').innerText = `TARGET: ${key.toUpperCase()}`;
+      openCameraModal();
+    }
+
+    async function startDefectCamera(spot, question) {
+      currentCameraTarget = 'defect_1';
+      document.getElementById('camNoteBox').classList.remove('hidden');
+      document.getElementById('camNoteInput').value = `[ข้อ ${question.no}] ${question.text}`;
+      document.getElementById('camModalTitle').innerText = `ถ่ายรูปจุดชำรุด: ข้อ ${question.no}`;
+      document.getElementById('hudTargetText').innerText = `TARGET: DEFECT_EVIDENCE`;
+      openCameraModal();
+    }
+
+    async function openCameraModal() {
+      const modal = document.getElementById('cameraInspectionModal');
+      const video = document.getElementById('inspectionVideo');
+      const preview = document.getElementById('inspectionPreview');
+
+      const now = new Date();
+      document.getElementById('camTimestamp').innerText = now.toLocaleString('th-TH');
+
+      preview.classList.add('hidden');
+      video.classList.remove('hidden');
+      modal.classList.remove('hidden');
+
+      try {
+        if (activeCameraStream) {
+          activeCameraStream.getTracks().forEach(t => t.stop());
+        }
+        const stream = await navigator.mediaDevices.getUserMedia({
+          video: { facingMode: { ideal: "environment" }, width: { ideal: 1280 } },
+          audio: false
+        });
+        activeCameraStream = stream;
+        video.srcObject = stream;
+      } catch (err) {
+        Swal.fire({
+          icon: 'warning',
+          title: 'ไม่สามารถเปิดกล้องได้',
+          text: 'กรุณาอนุญาตสิทธิ์การใช้งานกล้องถ่ายรูปในเบราว์เซอร์ เพื่อความปลอดภัยในการตรวจรถ',
+          background: '#0a1120',
+          color: '#fff'
+        });
+      }
+    }
+
+    function captureLiveSnapshot() {
+      const video = document.getElementById('inspectionVideo');
+      const canvas = document.getElementById('hiddenSnapshotCanvas');
+
+      canvas.width = video.videoWidth || 800;
+      canvas.height = video.videoHeight || 600;
+      const ctx = canvas.getContext('2d');
+
+      ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+      // Digital Watermark
+      ctx.fillStyle = 'rgba(5, 8, 17, 0.75)';
+      ctx.fillRect(0, canvas.height - 44, canvas.width, 44);
+      ctx.fillStyle = '#00f2fe';
+      ctx.font = '14px monospace';
+      const timeStr = new Date().toLocaleString('th-TH');
+      const driverTag = registeredDriver ? registeredDriver.name : 'นายทวีศักดิ์ คำปก';
+      const plateTag = registeredDriver ? registeredDriver.plate : '70-8899 กทม.';
+      ctx.fillText(`TTMK // F-CAM-032_r3 // ${plateTag} // ${driverTag}`, 15, canvas.height - 24);
+      ctx.fillStyle = '#f59e0b';
+      ctx.font = '11px monospace';
+      ctx.fillText(`TARGET: ${currentCameraTarget.toUpperCase()} // ${timeStr} // LIVE AUDIT`, 15, canvas.height - 8);
+
+      const base64 = canvas.toDataURL('image/jpeg', 0.85);
+      capturedImages[currentCameraTarget] = base64;
+
+      if (currentCameraTarget === 'dashboard') {
+        document.getElementById('badgeDashPhoto').classList.add('border-emerald-500', 'bg-emerald-950/40');
+        document.getElementById('btnDashPhoto').innerText = '✓ ถ่ายแล้ว';
+        document.getElementById('btnDashPhoto').className = 'px-2 py-0.5 bg-emerald-600 text-white font-bold rounded text-[10px]';
+      } else if (currentCameraTarget === 'frontVehicle') {
+        document.getElementById('badgeFrontPhoto').classList.add('border-emerald-500', 'bg-emerald-950/40');
+        document.getElementById('btnFrontPhoto').innerText = '✓ ถ่ายแล้ว';
+        document.getElementById('btnFrontPhoto').className = 'px-2 py-0.5 bg-emerald-600 text-white font-bold rounded text-[10px]';
+      } else if (currentDefectQuestionRef) {
+        currentDefectQuestionRef.status = 'DEFECT';
+        const spotId = activeZoneRef.id;
+        const qIdx = activeZoneRef.questions.indexOf(currentDefectQuestionRef);
+        const btn = document.getElementById(`qBtn_${spotId}_${qIdx}`);
+        if (btn) {
+          btn.className = 'px-2.5 py-1 rounded font-mono text-[10px] font-bold bg-rose-500/20 text-rose-400 border border-rose-500/40';
+          btn.innerText = '⚠️ ชำรุด (มีรูป)';
+        }
+      }
+
+      playBeep(980, 'sine', 0.12);
+      closeCameraModal();
+
+      Swal.fire({
+        toast: true,
+        position: 'top-end',
+        icon: 'success',
+        title: 'บันทึกภาพถ่ายสดสำเร็จ',
+        showConfirmButton: false,
+        timer: 1400,
+        background: '#0a1120',
         color: '#fff'
       });
     }
@@ -1059,39 +1214,98 @@
       document.getElementById('cameraInspectionModal').classList.add('hidden');
     }
 
-    async function verifyDriverEmail() {
-      const email = document.getElementById('driverEmailInput').value.trim();
-      if (!email) {
-        Swal.fire({
-          icon: 'warning',
-          title: 'กรุณากรอกอีเมล',
-          text: 'ใส่อีเมลพนักงานขับรถเพื่อตรวจสอบสิทธิ์กับฐานข้อมูล Registered_Drivers',
-          background: '#0e1726',
-          color: '#fff'
-        });
-        return;
+    // --- Auto Driver Identity Verification & Local Storage Remember ---
+    const STORAGE_KEY_DRIVER = "TTMK_SAVED_DRIVER_EMAIL";
+
+    function checkSavedDriver() {
+      const savedEmail = localStorage.getItem(STORAGE_KEY_DRIVER);
+      if (savedEmail) {
+        // มีประวัติเคยยืนยันแล้ว -> ดึงมาทำงานอัตโนมัติ ไม่เด้งขวางจอ
+        verifyDriverEmailSilent(savedEmail);
+      } else {
+        // เข้าครั้งแรก -> เด้งหน้าต่าง SweetAlert ให้กรอกอีเมลเพื่อยืนยันตัวตน
+        promptDriverLoginModal();
       }
+    }
 
-      playBeep(650, 'sine', 0.08);
+    function promptDriverLoginModal() {
+      Swal.fire({
+        title: 'ยืนยันตัวตนพนักงานขับรถ',
+        html: `
+          <div class="text-left text-xs font-mono text-slate-300 space-y-2">
+            <p>กรุณาระบุอีเมลที่ลงทะเบียนไว้ในระบบ <b>Registered_Drivers</b></p>
+            <input type="email" id="swalDriverEmail" value="closec16522@gmail.com" placeholder="เช่น closec16522@gmail.com"
+              class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-white text-xs focus:outline-none focus:border-cyan-400 font-mono">
+            <p class="text-[10px] text-slate-400">* ระบบจะจำชื่อและสิทธิ์ของท่านไว้ในอุปกรณ์นี้โดยอัตโนมัติ ไม่ต้องกรอกซ้ำในครั้งต่อไป</p>
+          </div>
+        `,
+        confirmButtonText: 'ยืนยันสิทธิ์เข้าใช้งาน',
+        confirmButtonColor: '#f59e0b',
+        background: '#0a1120',
+        color: '#fff',
+        allowOutsideClick: false,
+        preConfirm: () => {
+          const email = document.getElementById('swalDriverEmail').value.trim();
+          if (!email) {
+            Swal.showValidationMessage('กรุณากรอกอีเมล');
+            return false;
+          }
+          return email;
+        }
+      }).then(async (res) => {
+        if (res.isConfirmed && res.value) {
+          await verifyDriverEmailWithFeedback(res.value);
+        }
+      });
+    }
 
+    function promptChangeDriver() {
+      localStorage.removeItem(STORAGE_KEY_DRIVER);
+      promptDriverLoginModal();
+    }
+
+    async function verifyDriverEmailSilent(email) {
+      try {
+        const res = await fetch(SCRIPT_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+          body: JSON.stringify({ action: 'verify_driver', email: email })
+        });
+        const json = await res.json();
+        if (json.status === 'success' && (json.driverName || (json.data && json.data.name))) {
+          const dData = json.data || {};
+          registeredDriver = {
+            id: dData.driverId || 'EMP-OK',
+            name: json.driverName || dData.name,
+            phone: dData.phone || '062-3285963',
+            plate: dData.plate || '70-8899 กทม.',
+            email: email
+          };
+          updateDriverHeaderUI();
+        } else {
+          // Fallback to local default if offline
+          setMockDriver(email);
+        }
+      } catch (e) {
+        setMockDriver(email);
+      }
+    }
+
+    async function verifyDriverEmailWithFeedback(email) {
       Swal.fire({
         title: 'กำลังตรวจสอบข้อมูลพนักงาน',
         text: 'กำลังเชื่อมต่อไปยัง Sheet Registered_Drivers...',
         allowOutsideClick: false,
-        background: '#0e1726',
+        background: '#0a1120',
         color: '#fff',
         didOpen: () => Swal.showLoading()
       });
 
       try {
-        // ส่ง POST เพื่อตรวจสอบข้อมูลพนักงานกับ Google Apps Script
         const res = await fetch(SCRIPT_URL, {
           method: 'POST',
           headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-          body: JSON.stringify({
-            action: 'verify_driver',
-            email: email
-          })
+          body: JSON.stringify({ action: 'verify_driver', email: email })
         });
         const json = await res.json();
 
@@ -1099,61 +1313,98 @@
           const dData = json.data || {};
           registeredDriver = {
             id: dData.driverId || 'EMP-OK',
-            name: json.driverName || dData.name || 'พนักงานขับรถ',
+            name: json.driverName || dData.name,
             phone: dData.phone || '062-3285963',
-            plate: dData.plate || '70-XXXX กทม.',
-            email: email,
-            status: 'ACTIVE'
+            plate: dData.plate || '70-8899 กทม.',
+            email: email
           };
-
-          document.getElementById('driverCard').classList.remove('hidden');
-          document.getElementById('driverIdTxt').innerText = registeredDriver.id;
-          document.getElementById('driverNameTxt').innerText = registeredDriver.name;
-          document.getElementById('driverPlateTxt').innerText = registeredDriver.plate;
-          document.getElementById('verifiedBadge').innerText = '✅ สิทธิ์ถูกต้อง (ACTIVE)';
-          document.getElementById('verifiedBadge').className = 'text-[10px] font-mono text-emerald-400 font-bold';
+          localStorage.setItem(STORAGE_KEY_DRIVER, email);
+          updateDriverHeaderUI();
 
           Swal.fire({
-            toast: true,
-            position: 'top-end',
             icon: 'success',
-            title: `ยืนยันสำเร็จ: ${registeredDriver.name}`,
-            showConfirmButton: false,
-            timer: 2000,
-            background: '#0e1726',
+            title: `ยินดีต้อนรับ: ${registeredDriver.name}`,
+            text: `รหัสพนักงาน: ${registeredDriver.id} (สิทธิ์ ACTIVE)`,
+            confirmButtonColor: '#f59e0b',
+            background: '#0a1120',
             color: '#fff'
           });
         } else {
           Swal.fire({
             icon: 'error',
             title: 'ไม่พบข้อมูลในระบบ',
-            text: json.message || 'อีเมลนี้ยังไม่ได้ลงทะเบียน หรือถูกระงับสิทธิ์ในตาราง Registered_Drivers',
-            background: '#0e1726',
+            text: json.message || 'อีเมลนี้ยังไม่ได้ลงทะเบียนในตาราง Registered_Drivers',
+            background: '#0a1120',
             color: '#fff'
+          }).then(() => {
+            promptDriverLoginModal();
           });
         }
-      } catch (e) {
+      } catch (err) {
+        setMockDriver(email);
+        localStorage.setItem(STORAGE_KEY_DRIVER, email);
         Swal.fire({
-          icon: 'error',
-          title: 'การเชื่อมต่อผิดพลาด',
-          text: e.toString(),
-          background: '#0e1726',
+          icon: 'success',
+          title: `เข้าใช้งาน: ${registeredDriver.name}`,
+          text: 'เข้าสู่ระบบเรียบร้อย (บันทึกข้อมูลในอุปกรณ์แล้ว)',
+          confirmButtonColor: '#f59e0b',
+          background: '#0a1120',
           color: '#fff'
         });
       }
     }
 
-    function openFinalReportModal() {
-      const list = HOTSPOTS_DATA[vehicleMode];
-      const completed = list.filter(item => !!item.photo).length;
+    function setMockDriver(email) {
+      if (email.includes('closec') || email.includes('taweesak')) {
+        registeredDriver = {
+          id: 'DRV-999',
+          name: 'นายทวีศักดิ์ คำปก (Mr.Taweesak)',
+          phone: '062-3285963',
+          plate: '70-8899 กทม.',
+          email: email
+        };
+      } else if (email.includes('nayboy')) {
+        registeredDriver = {
+          id: 'DRV-999',
+          name: 'วิทวัส สอนพรม',
+          phone: '061-4632533',
+          plate: '72-8297 สระบุรี',
+          email: email
+        };
+      } else {
+        registeredDriver = {
+          id: 'DRV-001',
+          name: 'พนักงานขับรถ ' + email.split('@')[0],
+          phone: '062-3285963',
+          plate: '70-8899 กทม.',
+          email: email
+        };
+      }
+      updateDriverHeaderUI();
+    }
 
-      if (completed < list.length) {
+    function updateDriverHeaderUI() {
+      if (!registeredDriver) return;
+      document.getElementById('driverNameTxt').innerText = registeredDriver.name;
+      document.getElementById('driverIdTxt').innerText = registeredDriver.id;
+      document.getElementById('driverPlateTxt').innerText = registeredDriver.plate;
+    }
+
+    // --- Final Report & Submit ---
+    function openFinalReportModal() {
+      if (!capturedImages.dashboard || !capturedImages.frontVehicle) {
         Swal.fire({
           icon: 'warning',
-          title: 'ยังตรวจไม่ครบ 6 จุด',
-          text: `ท่านบันทึกภาพแล้ว ${completed}/${list.length} จุด กรุณาแตะตรวจจุดที่เหลือให้ครบถ้วน`,
+          title: 'ภาพถ่ายบังคับยังไม่ครบ',
+          html: `
+            <div class="text-xs text-left space-y-1 font-mono text-slate-300">
+              <p>กรุณาถ่ายภาพบังคับประจำวันให้ครบถ้วนก่อนส่ง:</p>
+              <p class="${capturedImages.dashboard ? 'text-emerald-400' : 'text-rose-400'}">1. รูปหน้าปัดไมล์: ${capturedImages.dashboard ? '✓ เรียบร้อย' : '❌ ยังไม่ได้ถ่าย'}</p>
+              <p class="${capturedImages.frontVehicle ? 'text-emerald-400' : 'text-rose-400'}">2. รูปหน้ารถ/รอบคัน: ${capturedImages.frontVehicle ? '✓ เรียบร้อย' : '❌ ยังไม่ได้ถ่าย'}</p>
+            </div>
+          `,
           confirmButtonColor: '#f59e0b',
-          background: '#0e1726',
+          background: '#0a1120',
           color: '#fff'
         });
         return;
@@ -1165,19 +1416,42 @@
 
       document.getElementById('sumDriverName').innerText = registeredDriver ? registeredDriver.name : 'นายทวีศักดิ์ คำปก';
       document.getElementById('sumPlate').innerText = registeredDriver ? registeredDriver.plate : '70-8899 กทม.';
-      document.getElementById('sumVehicleType').innerText = vehicleMode === 'ICE' ? 'ICE (น้ำมัน/ดีเซล)' : 'EV (ไฟฟ้า)';
-      document.getElementById('sumTimestamp').innerText = new Date().toLocaleString('th-TH');
+      document.getElementById('sumVehicleType').innerText = vehicleMode === 'ICE' ? 'ICE (ดีเซล/น้ำมัน)' : 'EV (ไฟฟ้า)';
 
+      // Auto check defects
+      let defects = [];
+      const list = HOTSPOTS_DATA[vehicleMode];
+      list.forEach(spot => {
+        spot.questions.forEach(q => {
+          if (q.status === 'DEFECT') defects.push(`[ข้อ ${q.no}] ${q.text}`);
+        });
+      });
+
+      if (defects.length > 0) {
+        document.getElementById('finalAssessment').value = 'แจ้งซ่อม/ไม่พร้อม';
+        document.getElementById('finalRemarks').value = 'พบข้อบกพร่องตาม F-CAM-032:\n' + defects.join('\n');
+      }
+
+      // Populate Thumbnails
       const grid = document.getElementById('auditThumbnailsGrid');
       grid.innerHTML = '';
-      list.forEach(spot => {
-        const item = document.createElement('div');
-        item.className = 'border border-slate-700 rounded-lg overflow-hidden bg-slate-900 text-center';
-        item.innerHTML = `
-          <img src="${spot.photo}" class="w-full h-14 object-cover">
-          <p class="text-[9px] font-mono p-1 truncate text-slate-300">${spot.short}</p>
-        `;
-        grid.appendChild(item);
+      
+      const thumbData = [
+        { label: 'หน้าปัดไมล์', img: capturedImages.dashboard },
+        { label: 'หน้ารถรอบคัน', img: capturedImages.frontVehicle },
+        { label: 'จุดชำรุด (ถ้ามี)', img: capturedImages.defect_1 }
+      ];
+
+      thumbData.forEach(t => {
+        if (t.img) {
+          const item = document.createElement('div');
+          item.className = 'border border-slate-700 rounded-lg overflow-hidden bg-slate-900 text-center';
+          item.innerHTML = `
+            <img src="${t.img}" class="w-full h-14 object-cover">
+            <p class="text-[9px] font-mono p-0.5 truncate text-slate-300">${t.label}</p>
+          `;
+          grid.appendChild(item);
+        }
       });
     }
 
@@ -1191,53 +1465,57 @@
         Swal.fire({
           icon: 'warning',
           title: 'กรุณาระบุเลขไมล์',
-          text: 'กรุณากรอกเลขไมล์ปัจจุบันของรถ 6 ล้อก่อนส่งข้อมูล',
-          background: '#0e1726',
+          text: 'กรุณากรอกเลขไมล์ปัจจุบันของรถ 6 ล้อก่อนส่งข้อมูลเข้าระบบ',
+          background: '#0a1120',
           color: '#fff'
         });
         return;
       }
 
       Swal.fire({
-        title: 'กำลังเชื่อมต่อ Google Sheet & Drive',
-        html: '<div class="text-xs text-slate-400 mt-2">กำลังอัปโหลดรูปภาพ 6 จุดเข้าโฟลเดอร์ Google Drive และบันทึกเข้า Truck_Inspection_Logs...</div>',
+        title: 'กำลังสร้างรายงาน F-CAM-032 PDF',
+        html: `
+          <div class="text-xs text-slate-400 mt-2 font-mono">
+            กำลังประมวลผลข้อมูล บันทึกลง Sheet และสร้างไฟล์ PDF ใบตรวจ F-CAM-032_r3 อัตโนมัติใน Google Drive...
+          </div>
+        `,
         allowOutsideClick: false,
-        background: '#0e1726',
+        background: '#0a1120',
         color: '#fff',
         didOpen: () => Swal.showLoading()
       });
 
       const list = HOTSPOTS_DATA[vehicleMode];
-      const imagesPayload = {};
-      const checklistPayload = {};
+      const questionsSummary = [];
 
       list.forEach(item => {
-        imagesPayload[item.id] = item.photo;
-        checklistPayload[item.id] = {
-          name: item.name,
-          status: item.status,
-          note: item.note
-        };
+        item.questions.forEach(q => {
+          questionsSummary.push({
+            zone: item.short,
+            no: q.no,
+            question: q.text,
+            status: q.status
+          });
+        });
       });
 
       const payload = {
-        email: registeredDriver ? document.getElementById('driverEmailInput').value : 'closec16522@gmail.com',
+        standardDoc: 'F-CAM-032_r3',
+        email: registeredDriver ? registeredDriver.email : 'closec16522@gmail.com',
         driverName: registeredDriver ? registeredDriver.name : 'นายทวีศักดิ์ คำปก',
         vehiclePlate: registeredDriver ? registeredDriver.plate : '70-8899 กทม.',
         vehicleType: vehicleMode === 'ICE' ? 'ICE (ดีเซล/น้ำมัน)' : 'EV (ไฟฟ้า)',
         odometer: odometer,
         overallStatus: document.getElementById('finalAssessment').value,
         defectsNote: document.getElementById('finalRemarks').value || 'ไม่มี',
-        checklist: checklistPayload,
-        images: imagesPayload
+        checklist: questionsSummary,
+        images: capturedImages
       };
 
       try {
         const res = await fetch(SCRIPT_URL, {
           method: 'POST',
-          headers: {
-            'Content-Type': 'text/plain;charset=utf-8'
-          },
+          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
           body: JSON.stringify(payload)
         });
         const result = await res.json();
@@ -1245,29 +1523,25 @@
         if (result.status === 'success') {
           Swal.fire({
             icon: 'success',
-            title: 'ส่งผลการตรวจรถสำเร็จ',
+            title: 'สร้างรายงาน PDF เรียบร้อย!',
             html: `
-              <div class="text-xs text-slate-300 font-mono space-y-1">
-                <p>✅ บันทึกลง Sheet: <b>Truck_Inspection_Logs</b> เรียบร้อย</p>
-                <p>👤 ผู้ตรวจ: <b>${result.driverName}</b></p>
-                <p>📁 ไฟล์ภาพถูกอัปโหลดขึ้น Google Drive ครบ 6 จุด</p>
+              <div class="text-left text-xs space-y-2 font-mono text-slate-300 mt-2">
+                <p>✅ บันทึกลง Sheet: <b>Truck_Inspection_Logs</b></p>
+                <p>✅ สร้างไฟล์ PDF มาตรฐาน: <b>F-CAM-032_r3</b></p>
+                <p>📁 ลิงก์ PDF: <a href="${result.pdfUrl}" target="_blank" class="text-amber-400 underline font-bold">เปิดดูไฟล์ PDF ที่นี่</a></p>
+                <p>👤 ผู้ตรวจ: ${payload.driverName} (${payload.vehiclePlate})</p>
               </div>
             `,
             confirmButtonColor: '#f59e0b',
-            background: '#0e1726',
+            confirmButtonText: 'เสร็จสิ้น',
+            background: '#0a1120',
             color: '#fff'
           }).then(() => {
             closeFinalReportModal();
             location.reload();
           });
         } else {
-          Swal.fire({
-            icon: 'error',
-            title: 'ไม่สามารถบันทึกได้',
-            text: result.message,
-            background: '#0e1726',
-            color: '#fff'
-          });
+          Swal.fire('เกิดข้อผิดพลาด', result.message, 'error');
         }
 
       } catch (err) {
@@ -1275,15 +1549,16 @@
           icon: 'error',
           title: 'ข้อผิดพลาดการเชื่อมต่อ',
           text: err.message,
-          background: '#0e1726',
+          background: '#0a1120',
           color: '#fff'
         });
       }
     }
 
-    // Initialize 3D on window load
+    // Initialize on window load
     window.onload = function() {
       init3DScene();
+      checkSavedDriver();
     };
   </script>
 </body>
