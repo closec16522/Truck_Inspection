@@ -708,20 +708,20 @@
       controls.maxDistance = 16;
       controls.target.set(0, 1.2, 0);
 
-      // Lights: ปรับแสงใหม่อารมณ์สตูดิโอกลางวัน สว่างชัดเจน ไม่มืดทึบ
-      const ambientLight = new THREE.AmbientLight(0xf1f5f9, 0.95);
+      // Lights: ปรับแสงให้นุ่มนวล สบายตา ไม่สว่างจ้าแสบตา
+      const ambientLight = new THREE.AmbientLight(0xe2e8f0, 0.75);
       scene.add(ambientLight);
 
-      // แสงหลักพระอาทิตย์/สปอตไลท์บน
-      const dirLight = new THREE.DirectionalLight(0xffffff, 1.25);
+      // แสงหลักพระอาทิตย์/สปอตไลท์บน (ปรับความเข้มลงให้พอดี สลัวสบายตา)
+      const dirLight = new THREE.DirectionalLight(0xffffff, 0.85);
       dirLight.position.set(12, 18, 12);
       dirLight.castShadow = true;
       dirLight.shadow.mapSize.width = 2048;
       dirLight.shadow.mapSize.height = 2048;
       scene.add(dirLight);
 
-      // แสงสะท้อนล่าง/ข้าง (Fill light) เพื่อให้ใต้ท้องรถและล้อไม่ดำมืด
-      const fillLight = new THREE.DirectionalLight(0x94a3b8, 0.6);
+      // แสงสะท้อนล่าง/ข้าง (Fill light) เพื่อให้รายละเอียดชัดเจน
+      const fillLight = new THREE.DirectionalLight(0x64748b, 0.45);
       fillLight.position.set(-10, -5, -10);
       scene.add(fillLight);
 
@@ -748,10 +748,11 @@
       if (truckGroup) scene.remove(truckGroup);
       truckGroup = new THREE.Group();
 
-      const cabinMat = new THREE.MeshStandardMaterial({ color: 0x334155, metalness: 0.5, roughness: 0.3 });
-      const cargoMat = new THREE.MeshStandardMaterial({ color: 0xffffff, metalness: 0.1, roughness: 0.5 });
-      const chassisMat = new THREE.MeshStandardMaterial({ color: 0x1e293b, metalness: 0.7, roughness: 0.5 });
-      const glassMat = new THREE.MeshPhysicalMaterial({ color: 0x0284c7, metalness: 0.1, roughness: 0.1, transmission: 0.7, transparent: true });
+      const cabinMat = new THREE.MeshStandardMaterial({ color: 0x475569, metalness: 0.3, roughness: 0.6 });
+      // ตู้บรรทุกปรับเป็นสีเทาควันบุหรี่/สลัวด้าน (Matte Muted Slate) ไม่สะท้อนแสบตา
+      const cargoMat = new THREE.MeshStandardMaterial({ color: 0x94a3b8, metalness: 0.05, roughness: 0.85 });
+      const chassisMat = new THREE.MeshStandardMaterial({ color: 0x1e293b, metalness: 0.5, roughness: 0.6 });
+      const glassMat = new THREE.MeshPhysicalMaterial({ color: 0x0369a1, metalness: 0.1, roughness: 0.2, transmission: 0.65, transparent: true });
       const wheelRubberMat = new THREE.MeshStandardMaterial({ color: 0x111827, roughness: 0.9 });
       const rimMat = new THREE.MeshStandardMaterial({ color: 0x94a3b8, metalness: 0.9, roughness: 0.2 });
 
