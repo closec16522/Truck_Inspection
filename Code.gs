@@ -98,7 +98,8 @@ function doPost(e) {
     let pdfUrl = "-";
     try {
       const pdfBlob = generateFCAM032PdfReport(data, driverInfo, photoBlobs);
-      const pdfFileName = `F-CAM-032_${timeCode}_${driverInfo.driverId}_${(data.vehiclePlate || driverInfo.plate).replace(/[^a-zA-Z0-9ก-๙]/g, '')}.pdf`;
+      const safePlate = String(data.vehiclePlate || driverInfo.plate || "70XXXX").replace(/[^a-zA-Z0-9ก-๙]/g, '');
+      const pdfFileName = `F-CAM-032_${timeCode}_${driverInfo.driverId}_${safePlate}.pdf`;
       const pdfFile = folder.createFile(pdfBlob.setName(pdfFileName));
       pdfFile.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
       pdfUrl = pdfFile.getUrl();
@@ -146,9 +147,9 @@ function doPost(e) {
  */
 function generateFCAM032PdfReport(data, driverInfo, photoBlobs) {
   const timestamp = Utilities.formatDate(new Date(), "Asia/Bangkok", "dd/MM/yyyy HH:mm:ss");
-  const plate = data.vehiclePlate || driverInfo.plate || "70-XXXX";
-  const driverName = driverInfo.name || "ไม่ระบุ";
-  const driverId = driverInfo.driverId || "EMP-N/A";
+  const plate = String(data.vehiclePlate || driverInfo.plate || "70-XXXX");
+  const driverName = String(driverInfo.name || "ไม่ระบุ");
+  const driverId = String(driverInfo.driverId || "EMP-N/A");
   const odo = data.odometer || "-";
   const vType = data.vehicleType || "ICE";
   const status = data.overallStatus || "พร้อมใช้งาน";

@@ -110,61 +110,34 @@
     </div>
 
     <!-- Mode Switcher (Diesel vs EV) & Sound Button -->
-    <div class="flex items-center gap-2">
+    <div class="flex items-center gap-1.5 sm:gap-2">
+      <!-- Minimalist Driver Tag in Header -->
+      <button onclick="promptChangeDriver()" class="flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-slate-900/90 border border-cyan-800/50 hover:border-cyan-400 transition text-[11px] font-mono shadow" title="คลิกเพื่อเปลี่ยนพนักงานขับรถ">
+        <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+        <span id="driverNameTxt" class="text-white font-bold truncate max-w-[110px] sm:max-w-none">นายทวีศักดิ์</span>
+        <span id="driverPlateTxt" class="text-amber-400 font-bold hidden sm:inline">70-8899</span>
+      </button>
+
       <div class="bg-slate-900/90 p-1 rounded-xl border border-cyan-800/40 flex items-center gap-1 shadow-inner">
-        <button id="modeIceBtn" onclick="switchVehicleMode('ICE')" class="px-2.5 py-1 rounded-lg text-xs font-mono font-semibold transition bg-amber-500 text-slate-950 shadow">
-          🚛 น้ำมัน (ICE)
+        <button id="modeIceBtn" onclick="switchVehicleMode('ICE')" class="px-2 py-1 rounded-lg text-xs font-mono font-semibold transition bg-amber-500 text-slate-950 shadow">
+          🚛 น้ำมัน
         </button>
-        <button id="modeEvBtn" onclick="switchVehicleMode('EV')" class="px-2.5 py-1 rounded-lg text-xs font-mono font-semibold text-slate-400 hover:text-emerald-300 transition">
-          ⚡ ไฟฟ้า (EV)
+        <button id="modeEvBtn" onclick="switchVehicleMode('EV')" class="px-2 py-1 rounded-lg text-xs font-mono font-semibold text-slate-400 hover:text-emerald-300 transition">
+          ⚡ EV
         </button>
       </div>
+
+      <button onclick="reset3DCamera()" class="p-2 rounded-xl hud-glass text-cyan-400 hover:text-white transition" title="รีเซ็ตมุมกล้อง 3D">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+      </button>
+
       <button onclick="toggleAudio()" id="soundBtn" class="p-2 rounded-xl hud-glass text-cyan-400 hover:text-white transition" title="เปิด/ปิดเสียงเอฟเฟกต์">
         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z"></path></svg>
       </button>
     </div>
   </header>
 
-  <main class="relative z-20 flex-grow pointer-events-none p-3 md:p-5 flex flex-col justify-between">
-    
-    <!-- Top-Left Floating Driver Card (Compact & Minimal, Click to Switch Driver) -->
-    <div class="pointer-events-auto max-w-xs w-full hud-glass rounded-2xl p-2.5 space-y-1.5 shadow-2xl border-cyan-500/30">
-      <div class="flex items-center justify-between">
-        <div class="flex items-center gap-1.5">
-          <div class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></div>
-          <span class="text-[11px] font-mono font-bold text-cyan-300">พนักงานขับรถผู้ตรวจ:</span>
-        </div>
-        <button onclick="promptChangeDriver()" class="text-[10px] font-mono text-cyan-400 hover:text-amber-300 underline">
-          เปลี่ยนคนขับ
-        </button>
-      </div>
-
-      <div class="p-2 rounded-lg bg-cyan-950/40 border border-cyan-500/20 text-[11px] space-y-0.5">
-        <div class="flex justify-between items-center">
-          <span id="driverNameTxt" class="text-white font-bold text-xs">นายทวีศักดิ์ คำปก (Mr.Taweesak)</span>
-          <span id="driverIdTxt" class="font-mono text-cyan-300 text-[10px] bg-slate-900 px-1.5 py-0.5 rounded">DRV-999</span>
-        </div>
-        <div class="flex justify-between text-[10px] text-slate-400 pt-0.5">
-          <span>ทะเบียน: <b id="driverPlateTxt" class="text-amber-400 font-mono">70-8899 กทม.</b></span>
-          <span>สิทธิ์: <b class="text-emerald-400 font-mono">ACTIVE</b></span>
-        </div>
-      </div>
-
-      <div class="flex items-center justify-between text-[10px] text-slate-400 pt-0.5">
-        <span>มุมมอง 3 มิติ:</span>
-        <button onclick="reset3DCamera()" class="text-cyan-400 hover:underline flex items-center gap-1 font-mono">
-          <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg> รีเซ็ตมุมกล้อง
-        </button>
-      </div>
-    </div>
-
-    <!-- Center Interactive Hint -->
-    <div class="self-center text-center pointer-events-none transition-opacity duration-500">
-      <div class="px-3.5 py-1.5 rounded-full bg-slate-900/70 border border-cyan-500/20 backdrop-blur text-[11px] text-cyan-300 font-mono tracking-wider flex items-center gap-2 shadow-lg">
-        <span class="w-2 h-2 rounded-full bg-cyan-400 animate-ping"></span>
-        หมุน 3D ดูรอบคัน หรือแตะจุดตรวจเพื่อเช็คข้อบกพร่องตาม F-CAM-032
-      </div>
-    </div>
+  <main class="relative z-20 flex-grow pointer-events-none p-3 md:p-5 flex flex-col justify-end">
 
     <!-- Bottom HUD Cockpit Controller -->
     <div class="pointer-events-auto max-w-2xl w-full mx-auto hud-glass rounded-2xl p-3.5 shadow-2xl border-cyan-500/30 space-y-2.5">
@@ -1521,19 +1494,26 @@
         const result = await res.json();
 
         if (result.status === 'success') {
+          const hasValidPdf = result.pdfUrl && result.pdfUrl.startsWith('http');
+          const pdfLinkHtml = hasValidPdf 
+            ? `<a href="${result.pdfUrl}" target="_blank" rel="noopener noreferrer" class="inline-block mt-1 px-3 py-1 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold rounded text-xs shadow">📄 เปิดดูและดาวน์โหลดไฟล์ PDF</a>`
+            : `<span class="text-rose-400 font-bold">⚠️ (${result.pdfUrl})</span>`;
+
           Swal.fire({
             icon: 'success',
-            title: 'สร้างรายงาน PDF เรียบร้อย!',
+            title: 'สร้างรายงาน F-CAM-032 เรียบร้อย!',
             html: `
               <div class="text-left text-xs space-y-2 font-mono text-slate-300 mt-2">
                 <p>✅ บันทึกลง Sheet: <b>Truck_Inspection_Logs</b></p>
-                <p>✅ สร้างไฟล์ PDF มาตรฐาน: <b>F-CAM-032_r3</b></p>
-                <p>📁 ลิงก์ PDF: <a href="${result.pdfUrl}" target="_blank" class="text-amber-400 underline font-bold">เปิดดูไฟล์ PDF ที่นี่</a></p>
-                <p>👤 ผู้ตรวจ: ${payload.driverName} (${payload.vehiclePlate})</p>
+                <p>✅ แบบฟอร์มมาตรฐาน: <b>F-CAM-032_r3</b></p>
+                <p>👤 ผู้ตรวจ: <b>${payload.driverName}</b> (ทะเบียน: ${payload.vehiclePlate})</p>
+                <div class="pt-2 text-center border-t border-slate-800">
+                  ${pdfLinkHtml}
+                </div>
               </div>
             `,
-            confirmButtonColor: '#f59e0b',
-            confirmButtonText: 'เสร็จสิ้น',
+            confirmButtonColor: '#00f2fe',
+            confirmButtonText: 'ปิดหน้าต่าง',
             background: '#0a1120',
             color: '#fff'
           }).then(() => {
