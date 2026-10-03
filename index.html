@@ -1,0 +1,557 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>ระบบตรวจเช็กรถบรรทุก 6 ล้อ - หจก. ทั่วไทยขนส่งมงคล</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <style>
+    /* Styling for crisp mobile viewport */
+    input:focus, select:focus, textarea:focus {
+      outline: none;
+    }
+  </style>
+</head>
+<body class="bg-slate-100 min-h-screen flex flex-col justify-between text-slate-800 font-sans antialiased selection:bg-amber-500 selection:text-white">
+
+  <!-- Header -->
+  <header class="bg-slate-900 text-white shadow-md sticky top-0 z-40 border-b border-slate-800">
+    <div class="max-w-xl mx-auto px-4 py-3 flex items-center justify-between">
+      <div class="flex items-center space-x-2">
+        <span class="text-2xl">🚛</span>
+        <div>
+          <h1 class="text-base font-bold tracking-wide text-amber-400 leading-tight">หจก. ทั่วไทยขนส่งมงคล</h1>
+          <p class="text-[11px] text-slate-300">ระบบตรวจสอบสภาพรถบรรทุก 6 ล้อ ประจำวัน</p>
+        </div>
+      </div>
+      <span class="px-2.5 py-1 bg-amber-500/20 text-amber-400 text-[10px] font-semibold rounded-full border border-amber-500/30 flex items-center gap-1">
+        <span class="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse"></span>
+        มาตรฐานความปลอดภัย
+      </span>
+    </div>
+  </header>
+
+  <!-- Main Container -->
+  <main class="max-w-xl mx-auto w-full p-4 flex-grow">
+    <form id="inspectionForm" class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden space-y-6 p-5">
+      
+      <!-- 1. ข้อมูลการตรวจเช็ก -->
+      <section class="space-y-3">
+        <div class="flex items-center justify-between border-b pb-2">
+          <h2 class="text-xs font-bold uppercase tracking-wider text-slate-600 flex items-center gap-1.5">
+            <span class="w-5 h-5 rounded-full bg-slate-900 text-amber-400 flex items-center justify-center text-[10px] font-bold">1</span>
+            ข้อมูลพนักงานและการตรวจเช็ก
+          </h2>
+          <span class="text-[11px] text-amber-600 font-medium">* บังคับระบุ</span>
+        </div>
+        
+        <div>
+          <label class="block text-xs font-semibold text-slate-700 mb-1">
+            อีเมลผู้ขับขี่ (ที่ลงทะเบียนไว้ใน Registered_Drivers) <span class="text-red-500">*</span>
+          </label>
+          <input type="email" id="driverEmail" required placeholder="driver@tuathaittmk.com หรือ gmail"
+            class="w-full px-3 py-2.5 bg-slate-50 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-amber-500 focus:border-amber-500 focus:bg-white transition">
+          <p class="text-[11px] text-slate-400 mt-1">ระบบจะตรวจสิทธิ์และดึงข้อมูลชื่อ-รหัสพนักงานอัตโนมัติ</p>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-semibold text-slate-700 mb-1">
+              ทะเบียนรถ 6 ล้อ <span class="text-red-500">*</span>
+            </label>
+            <input type="text" id="vehiclePlate" required placeholder="70-XXXX / 72-XXXX"
+              class="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg text-sm uppercase focus:ring-2 focus:ring-amber-500 focus:border-amber-500 focus:bg-white transition">
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-700 mb-1">
+              เลขไมล์ปัจจุบัน (กม.) <span class="text-red-500">*</span>
+            </label>
+            <input type="number" id="odometer" required placeholder="125000" min="0"
+              class="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-amber-500 focus:border-amber-500 focus:bg-white transition">
+          </div>
+        </div>
+
+        <!-- ตัวเลือกประเภทระบบขับเคลื่อน -->
+        <div>
+          <label class="block text-xs font-semibold text-slate-700 mb-1.5">
+            ประเภทระบบขับเคลื่อนของรถ <span class="text-red-500">*</span>
+          </label>
+          <div class="grid grid-cols-2 gap-2">
+            <button type="button" id="btnTypeICE" onclick="setVehicleType('ICE')"
+              class="py-2.5 px-3 text-xs font-bold rounded-xl border border-amber-500 bg-amber-500 text-slate-950 shadow-sm transition flex items-center justify-center gap-1.5">
+              <span>🚛</span>
+              <span>รถน้ำมัน (ดีเซล)</span>
+            </button>
+            <button type="button" id="btnTypeEV" onclick="setVehicleType('EV')"
+              class="py-2.5 px-3 text-xs font-bold rounded-xl border border-slate-300 bg-slate-50 text-slate-600 hover:bg-slate-100 transition flex items-center justify-center gap-1.5">
+              <span>⚡</span>
+              <span>รถบรรทุกไฟฟ้า (EV)</span>
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- 2. ตรวจสอบอุปกรณ์และระบบสำคัญ -->
+      <section class="space-y-3">
+        <div class="border-b pb-2 flex items-center justify-between">
+          <h2 class="text-xs font-bold uppercase tracking-wider text-slate-600 flex items-center gap-1.5">
+            <span class="w-5 h-5 rounded-full bg-slate-900 text-amber-400 flex items-center justify-center text-[10px] font-bold">2</span>
+            ตรวจสอบอุปกรณ์และระบบสำคัญ
+          </h2>
+          <span class="text-[11px] text-slate-500">ติ๊กเพื่อยืนยันสภาพปกติ</span>
+        </div>
+        
+        <div class="space-y-2 text-xs" id="checklistContainer">
+          <!-- เช็กทั่วไปทั้งสองประเภท -->
+          <label class="flex items-center justify-between p-3 bg-slate-50 hover:bg-slate-100 rounded-xl border border-slate-200 transition cursor-pointer">
+            <span class="font-medium text-slate-700">สภาพยาง 6 เส้น / น็อตล้อแน่นหนา / แรงดันลมยาง</span>
+            <input type="checkbox" name="chk_tires" checked class="w-4 h-4 text-amber-600 rounded focus:ring-amber-500 accent-amber-500">
+          </label>
+          <label class="flex items-center justify-between p-3 bg-slate-50 hover:bg-slate-100 rounded-xl border border-slate-200 transition cursor-pointer">
+            <span class="font-medium text-slate-700">ระบบเบรก / ลมเบรก / เบรกมือ ทำงานปกติ</span>
+            <input type="checkbox" name="chk_brake" checked class="w-4 h-4 text-amber-600 rounded focus:ring-amber-500 accent-amber-500">
+          </label>
+          <label class="flex items-center justify-between p-3 bg-slate-50 hover:bg-slate-100 rounded-xl border border-slate-200 transition cursor-pointer">
+            <span class="font-medium text-slate-700">ไฟหน้า / ไฟเลี้ยว / ไฟท้าย / ไฟเบรก สว่างครบ</span>
+            <input type="checkbox" name="chk_lights" checked class="w-4 h-4 text-amber-600 rounded focus:ring-amber-500 accent-amber-500">
+          </label>
+          <label class="flex items-center justify-between p-3 bg-slate-50 hover:bg-slate-100 rounded-xl border border-slate-200 transition cursor-pointer">
+            <span class="font-medium text-slate-700">กระจกมองข้าง / กระจกส่องมุม / ที่ปัดน้ำฝน</span>
+            <input type="checkbox" name="chk_mirror" checked class="w-4 h-4 text-amber-600 rounded focus:ring-amber-500 accent-amber-500">
+          </label>
+
+          <!-- เฉพาะรถน้ำมัน -->
+          <div id="iceChecklist" class="space-y-2">
+            <label class="flex items-center justify-between p-3 bg-amber-50/70 hover:bg-amber-100/70 rounded-xl border border-amber-200 text-amber-950 transition cursor-pointer">
+              <span class="font-medium">ระดับน้ำมันเครื่อง / น้ำมันเกียร์ / น้ำมันเพาเวอร์</span>
+              <input type="checkbox" name="chk_engine_oil" checked class="w-4 h-4 rounded text-amber-600 accent-amber-600">
+            </label>
+            <label class="flex items-center justify-between p-3 bg-amber-50/70 hover:bg-amber-100/70 rounded-xl border border-amber-200 text-amber-950 transition cursor-pointer">
+              <span class="font-medium">ระดับน้ำในหม้อน้ำ / หม้อพักน้ำ / สภาพสายพาน</span>
+              <input type="checkbox" name="chk_coolant" checked class="w-4 h-4 rounded text-amber-600 accent-amber-600">
+            </label>
+            <label class="flex items-center justify-between p-3 bg-amber-50/70 hover:bg-amber-100/70 rounded-xl border border-amber-200 text-amber-950 transition cursor-pointer">
+              <span class="font-medium">ไม่มีการรั่วซึมของน้ำมันใต้ท้องเครื่อง</span>
+              <input type="checkbox" name="chk_oil_leak" checked class="w-4 h-4 rounded text-amber-600 accent-amber-600">
+            </label>
+          </div>
+
+          <!-- เฉพาะรถ EV -->
+          <div id="evChecklist" class="space-y-2 hidden">
+            <label class="flex items-center justify-between p-3 bg-emerald-50/70 hover:bg-emerald-100/70 rounded-xl border border-emerald-200 text-emerald-950 transition cursor-pointer">
+              <span class="font-medium">ระดับแบตเตอรี่ขับเคลื่อน (SoC %) เพียงพอต่อเที่ยววิ่ง</span>
+              <input type="checkbox" name="chk_ev_battery" checked class="w-4 h-4 rounded text-emerald-600 accent-emerald-600">
+            </label>
+            <label class="flex items-center justify-between p-3 bg-emerald-50/70 hover:bg-emerald-100/70 rounded-xl border border-emerald-200 text-emerald-950 transition cursor-pointer">
+              <span class="font-medium">พอร์ตชาร์จ (CCS2 / GB/T) สะอาด ไม่มีรอยไหม้/ขาคด</span>
+              <input type="checkbox" name="chk_ev_port" checked class="w-4 h-4 rounded text-emerald-600 accent-emerald-600">
+            </label>
+            <label class="flex items-center justify-between p-3 bg-emerald-50/70 hover:bg-emerald-100/70 rounded-xl border border-emerald-200 text-emerald-950 transition cursor-pointer">
+              <span class="font-medium">สายไฟแรงสูงสีส้ม (High Voltage) แน่นหนา ไม่มีรอยหนูกัด</span>
+              <input type="checkbox" name="chk_ev_hv_cable" checked class="w-4 h-4 rounded text-emerald-600 accent-emerald-600">
+            </label>
+            <label class="flex items-center justify-between p-3 bg-emerald-50/70 hover:bg-emerald-100/70 rounded-xl border border-emerald-200 text-emerald-950 transition cursor-pointer">
+              <span class="font-medium">ระดับน้ำหล่อเย็นแบตเตอรี่และมอเตอร์ (Battery Coolant)</span>
+              <input type="checkbox" name="chk_ev_coolant" checked class="w-4 h-4 rounded text-emerald-600 accent-emerald-600">
+            </label>
+          </div>
+        </div>
+      </section>
+
+      <!-- 3. ถ่ายรูปตรวจสภาพรถ (บังคับเปิดกล้องสด) -->
+      <section class="space-y-3">
+        <div class="border-b pb-2 flex items-center justify-between">
+          <h2 class="text-xs font-bold uppercase tracking-wider text-slate-600 flex items-center gap-1.5">
+            <span class="w-5 h-5 rounded-full bg-slate-900 text-amber-400 flex items-center justify-center text-[10px] font-bold">3</span>
+            บังคับถ่ายภาพสด (6 จุดสำคัญรอบคัน)
+          </h2>
+          <span class="text-[10px] bg-red-100 text-red-700 px-2 py-0.5 rounded font-bold">ห้ามใช้รูปเก่า</span>
+        </div>
+        <p class="text-[11px] text-slate-500">ระบบจะเปิดกล้องหลังแบบสด ไม่อนุญาตให้เลือกภาพจากคลังรูปมือถือ</p>
+        
+        <div class="grid grid-cols-2 gap-3 text-xs">
+          <!-- จุดที่ 1 -->
+          <div class="border border-slate-200 rounded-xl p-3 text-center bg-slate-50 flex flex-col justify-between shadow-xs">
+            <div class="font-bold text-slate-700 mb-1 flex items-center justify-center gap-1">
+              <span>1. ยางหน้า/ดอกยาง</span>
+              <span id="badge_frontTire" class="w-2 h-2 rounded-full bg-slate-300"></span>
+            </div>
+            <div class="relative w-full h-28 bg-slate-200 rounded-lg overflow-hidden flex items-center justify-center border border-slate-200 my-1">
+              <span id="ph_frontTire" class="text-[11px] text-slate-400">ยังไม่ได้ถ่ายภาพ</span>
+              <img id="prev_frontTire" class="absolute inset-0 w-full h-full object-cover hidden" alt="Front Tire">
+            </div>
+            <button type="button" onclick="startCamera('frontTire', '1. ยางหน้า/ดอกยาง')"
+              class="w-full mt-2 py-2 bg-slate-900 hover:bg-slate-800 text-amber-400 font-semibold rounded-lg text-xs flex items-center justify-center gap-1 transition">
+              <span>📷</span> ถ่ายภาพสด
+            </button>
+          </div>
+
+          <!-- จุดที่ 2 -->
+          <div class="border border-slate-200 rounded-xl p-3 text-center bg-slate-50 flex flex-col justify-between shadow-xs">
+            <div class="font-bold text-slate-700 mb-1 flex items-center justify-center gap-1">
+              <span>2. ยางหลัง/น็อตล้อ</span>
+              <span id="badge_rearTire" class="w-2 h-2 rounded-full bg-slate-300"></span>
+            </div>
+            <div class="relative w-full h-28 bg-slate-200 rounded-lg overflow-hidden flex items-center justify-center border border-slate-200 my-1">
+              <span id="ph_rearTire" class="text-[11px] text-slate-400">ยังไม่ได้ถ่ายภาพ</span>
+              <img id="prev_rearTire" class="absolute inset-0 w-full h-full object-cover hidden" alt="Rear Tire">
+            </div>
+            <button type="button" onclick="startCamera('rearTire', '2. ยางหลัง/น็อตล้อ')"
+              class="w-full mt-2 py-2 bg-slate-900 hover:bg-slate-800 text-amber-400 font-semibold rounded-lg text-xs flex items-center justify-center gap-1 transition">
+              <span>📷</span> ถ่ายภาพสด
+            </button>
+          </div>
+
+          <!-- จุดที่ 3 -->
+          <div class="border border-slate-200 rounded-xl p-3 text-center bg-slate-50 flex flex-col justify-between shadow-xs">
+            <div class="font-bold text-slate-700 mb-1 flex items-center justify-center gap-1">
+              <span id="label_powertrain">3. ห้องเครื่อง/สายพาน</span>
+              <span id="badge_powertrain" class="w-2 h-2 rounded-full bg-slate-300"></span>
+            </div>
+            <div class="relative w-full h-28 bg-slate-200 rounded-lg overflow-hidden flex items-center justify-center border border-slate-200 my-1">
+              <span id="ph_powertrain" class="text-[11px] text-slate-400">ยังไม่ได้ถ่ายภาพ</span>
+              <img id="prev_powertrain" class="absolute inset-0 w-full h-full object-cover hidden" alt="Powertrain">
+            </div>
+            <button type="button" onclick="startCamera('powertrain', document.getElementById('label_powertrain').innerText)"
+              class="w-full mt-2 py-2 bg-slate-900 hover:bg-slate-800 text-amber-400 font-semibold rounded-lg text-xs flex items-center justify-center gap-1 transition">
+              <span>📷</span> ถ่ายภาพสด
+            </button>
+          </div>
+
+          <!-- จุดที่ 4 -->
+          <div class="border border-slate-200 rounded-xl p-3 text-center bg-slate-50 flex flex-col justify-between shadow-xs">
+            <div class="font-bold text-slate-700 mb-1 flex items-center justify-center gap-1">
+              <span id="label_brakefluid">4. น้ำมันเบรก/หม้อลม</span>
+              <span id="badge_brakeFluid" class="w-2 h-2 rounded-full bg-slate-300"></span>
+            </div>
+            <div class="relative w-full h-28 bg-slate-200 rounded-lg overflow-hidden flex items-center justify-center border border-slate-200 my-1">
+              <span id="ph_brakeFluid" class="text-[11px] text-slate-400">ยังไม่ได้ถ่ายภาพ</span>
+              <img id="prev_brakeFluid" class="absolute inset-0 w-full h-full object-cover hidden" alt="Brake Fluid">
+            </div>
+            <button type="button" onclick="startCamera('brakeFluid', document.getElementById('label_brakefluid').innerText)"
+              class="w-full mt-2 py-2 bg-slate-900 hover:bg-slate-800 text-amber-400 font-semibold rounded-lg text-xs flex items-center justify-center gap-1 transition">
+              <span>📷</span> ถ่ายภาพสด
+            </button>
+          </div>
+
+          <!-- จุดที่ 5 -->
+          <div class="border border-slate-200 rounded-xl p-3 text-center bg-slate-50 flex flex-col justify-between shadow-xs">
+            <div class="font-bold text-slate-700 mb-1 flex items-center justify-center gap-1">
+              <span>5. สภาพรอบคัน/ไฟรอบ</span>
+              <span id="badge_lightsBody" class="w-2 h-2 rounded-full bg-slate-300"></span>
+            </div>
+            <div class="relative w-full h-28 bg-slate-200 rounded-lg overflow-hidden flex items-center justify-center border border-slate-200 my-1">
+              <span id="ph_lightsBody" class="text-[11px] text-slate-400">ยังไม่ได้ถ่ายภาพ</span>
+              <img id="prev_lightsBody" class="absolute inset-0 w-full h-full object-cover hidden" alt="Lights & Body">
+            </div>
+            <button type="button" onclick="startCamera('lightsBody', '5. สภาพรอบคัน/ไฟรอบ')"
+              class="w-full mt-2 py-2 bg-slate-900 hover:bg-slate-800 text-amber-400 font-semibold rounded-lg text-xs flex items-center justify-center gap-1 transition">
+              <span>📷</span> ถ่ายภาพสด
+            </button>
+          </div>
+
+          <!-- จุดที่ 6 -->
+          <div class="border border-slate-200 rounded-xl p-3 text-center bg-slate-50 flex flex-col justify-between shadow-xs">
+            <div class="font-bold text-slate-700 mb-1 flex items-center justify-center gap-1">
+              <span>6. หน้าปัดไมล์/ไฟเตือน</span>
+              <span id="badge_dashboard" class="w-2 h-2 rounded-full bg-slate-300"></span>
+            </div>
+            <div class="relative w-full h-28 bg-slate-200 rounded-lg overflow-hidden flex items-center justify-center border border-slate-200 my-1">
+              <span id="ph_dashboard" class="text-[11px] text-slate-400">ยังไม่ได้ถ่ายภาพ</span>
+              <img id="prev_dashboard" class="absolute inset-0 w-full h-full object-cover hidden" alt="Dashboard">
+            </div>
+            <button type="button" onclick="startCamera('dashboard', '6. หน้าปัดไมล์/ไฟเตือน')"
+              class="w-full mt-2 py-2 bg-slate-900 hover:bg-slate-800 text-amber-400 font-semibold rounded-lg text-xs flex items-center justify-center gap-1 transition">
+              <span>📷</span> ถ่ายภาพสด
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- 4. สรุปผลการตรวจ -->
+      <section class="space-y-3">
+        <div class="border-b pb-2 flex items-center justify-between">
+          <h2 class="text-xs font-bold uppercase tracking-wider text-slate-600 flex items-center gap-1.5">
+            <span class="w-5 h-5 rounded-full bg-slate-900 text-amber-400 flex items-center justify-center text-[10px] font-bold">4</span>
+            สรุปผลการประเมินสภาพรถ
+          </h2>
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-700 mb-1">ผลการประเมินสภาพรถ</label>
+          <select id="overallStatus" class="w-full px-3 py-2.5 bg-slate-50 border border-slate-300 rounded-lg text-sm font-semibold focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition">
+            <option value="พร้อมใช้งาน" selected>✅ สภาพสมบูรณ์ พร้อมออกปฏิบัติงาน</option>
+            <option value="แจ้งซ่อม/ไม่พร้อม">⚠️ พบจุดบกพร่อง / ต้องแจ้งซ่อมเร่งด่วน</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-700 mb-1">หมายเหตุ / จุดชำรุดที่พบ (ถ้ามี)</label>
+          <textarea id="defectsNote" rows="2" placeholder="ระบุอาการผิดปกติ เช่น ยางหลังขวาซึม, ไฟเลี้ยวซ้ายไม่ติด, มีเสียงดัง..."
+            class="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-amber-500 focus:border-amber-500 focus:bg-white transition"></textarea>
+        </div>
+      </section>
+
+      <button type="submit" id="submitBtn" class="w-full py-3.5 bg-amber-500 hover:bg-amber-600 active:scale-[0.99] text-slate-950 font-bold rounded-xl shadow-md transition text-sm flex items-center justify-center gap-2">
+        <span>🚀</span>
+        <span>บันทึกข้อมูลการตรวจสอบรถ</span>
+      </button>
+    </form>
+  </main>
+
+  <!-- Modal กล้องสด (Full Live Camera Feed) -->
+  <div id="cameraModal" class="fixed inset-0 bg-black/90 z-50 flex flex-col items-center justify-center p-3 sm:p-6 hidden">
+    <div class="w-full max-w-sm bg-slate-900 rounded-2xl overflow-hidden p-4 space-y-3 text-center border border-slate-700 shadow-2xl">
+      <div class="flex items-center justify-between border-b border-slate-800 pb-2">
+        <h3 id="cameraModalTitle" class="text-white text-xs font-bold truncate">กำลังเปิดกล้องสด...</h3>
+        <button type="button" onclick="closeCamera()" class="text-slate-400 hover:text-white text-lg leading-none">&times;</button>
+      </div>
+      
+      <!-- Video Element -->
+      <div class="relative w-full h-72 bg-black rounded-xl overflow-hidden flex items-center justify-center border border-slate-800 shadow-inner">
+        <video id="liveVideo" autoplay playsinline muted class="w-full h-full object-cover"></video>
+        <!-- Reticle Overlay for Professional feel -->
+        <div class="absolute inset-4 border border-white/20 rounded-lg pointer-events-none flex items-center justify-center">
+          <div class="w-6 h-6 border-t-2 border-l-2 border-amber-400 absolute top-0 left-0"></div>
+          <div class="w-6 h-6 border-t-2 border-r-2 border-amber-400 absolute top-0 right-0"></div>
+          <div class="w-6 h-6 border-b-2 border-l-2 border-amber-400 absolute bottom-0 left-0"></div>
+          <div class="w-6 h-6 border-b-2 border-r-2 border-amber-400 absolute bottom-0 right-0"></div>
+        </div>
+      </div>
+      
+      <p class="text-[11px] text-slate-400">เล็งวัตถุให้อยู่ในกรอบ แล้วกดบันทึกภาพ</p>
+
+      <div class="flex gap-2">
+        <button type="button" onclick="closeCamera()" class="flex-1 py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-xl text-xs font-semibold transition">
+          ยกเลิก
+        </button>
+        <button type="button" onclick="captureSnapshot()" class="flex-1 py-2.5 bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold rounded-xl text-xs shadow transition flex items-center justify-center gap-1.5">
+          <span>📸</span>
+          <span>กดบันทึกภาพ</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Offscreen canvas for processing image frame -->
+  <canvas id="snapshotCanvas" class="hidden"></canvas>
+
+  <!-- Footer -->
+  <footer class="bg-white border-t border-slate-200 py-3 text-center text-xs text-slate-500 mt-6">
+    &copy; copyright , Mr.Taweesak.kom (0623285963)
+  </footer>
+
+  <script>
+    // ⚙️ URL Web App จาก Google Apps Script หลัง Deploy
+    // หากนำไปใช้งาน ให้แทนที่ค่านี้ด้วย Web App URL ที่ได้จากการ Deploy
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyexample-replace-with-your-url/exec";
+
+    let currentVehicleType = "ICE";
+    let currentKey = "";
+    let activeMediaStream = null;
+    const capturedImages = {};
+
+    function setVehicleType(type) {
+      currentVehicleType = type;
+      const btnICE = document.getElementById("btnTypeICE");
+      const btnEV = document.getElementById("btnTypeEV");
+      const iceBox = document.getElementById("iceChecklist");
+      const evBox = document.getElementById("evChecklist");
+      const labelPowertrain = document.getElementById("label_powertrain");
+      const labelBrakeFluid = document.getElementById("label_brakefluid");
+
+      if (type === "ICE") {
+        btnICE.className = "py-2.5 px-3 text-xs font-bold rounded-xl border border-amber-500 bg-amber-500 text-slate-950 shadow-sm transition flex items-center justify-center gap-1.5";
+        btnEV.className = "py-2.5 px-3 text-xs font-bold rounded-xl border border-slate-300 bg-slate-50 text-slate-600 hover:bg-slate-100 transition flex items-center justify-center gap-1.5";
+        iceBox.classList.remove("hidden");
+        evBox.classList.add("hidden");
+        labelPowertrain.innerText = "3. ห้องเครื่อง/สายพาน";
+        labelBrakeFluid.innerText = "4. น้ำมันเบรก/หม้อลม";
+      } else {
+        btnEV.className = "py-2.5 px-3 text-xs font-bold rounded-xl border border-emerald-500 bg-emerald-500 text-slate-950 shadow-sm transition flex items-center justify-center gap-1.5";
+        btnICE.className = "py-2.5 px-3 text-xs font-bold rounded-xl border border-slate-300 bg-slate-50 text-slate-600 hover:bg-slate-100 transition flex items-center justify-center gap-1.5";
+        iceBox.classList.add("hidden");
+        evBox.classList.remove("hidden");
+        labelPowertrain.innerText = "3. แบตเตอรี่/สายไฟ HV";
+        labelBrakeFluid.innerText = "4. ระบบเบรก/ปั๊มลม EV";
+      }
+    }
+
+    async function startCamera(key, labelTitle) {
+      currentKey = key;
+      const modal = document.getElementById("cameraModal");
+      const video = document.getElementById("liveVideo");
+      const modalTitle = document.getElementById("cameraModalTitle");
+      
+      modalTitle.innerText = `กำลังถ่าย: ${labelTitle || key}`;
+      modal.classList.remove("hidden");
+
+      try {
+        if (activeMediaStream) {
+          activeMediaStream.getTracks().forEach(t => t.stop());
+        }
+        // บังคับใช้กล้องหลัง (Environment) สำหรับการตรวจรอบรถ
+        const stream = await navigator.mediaDevices.getUserMedia({
+          video: { 
+            facingMode: { ideal: "environment" },
+            width: { ideal: 1280 },
+            height: { ideal: 720 }
+          },
+          audio: false
+        });
+        activeMediaStream = stream;
+        video.srcObject = stream;
+      } catch (err) {
+        Swal.fire({
+          icon: 'error',
+          title: 'กล้องขัดข้อง',
+          text: 'ไม่สามารถเปิดกล้องได้ กรุณาอนุญาตสิทธิ์เข้าถึงกล้องถ่ายรูปในเบราว์เซอร์ของคุณ',
+          confirmButtonColor: '#f59e0b'
+        });
+        closeCamera();
+      }
+    }
+
+    function captureSnapshot() {
+      const video = document.getElementById("liveVideo");
+      const canvas = document.getElementById("snapshotCanvas");
+      
+      // ปรับขนาดความละเอียดให้คมชัดแต่ขนาดไฟล์พอเหมาะกับการส่งผ่าน POST Base64
+      const width = video.videoWidth || 800;
+      const height = video.videoHeight || 600;
+      
+      canvas.width = width;
+      canvas.height = height;
+      const ctx = canvas.getContext("2d");
+      ctx.drawImage(video, 0, 0, width, height);
+
+      const base64 = canvas.toDataURL("image/jpeg", 0.82);
+      capturedImages[currentKey] = base64;
+
+      // Update Preview UI
+      const preview = document.getElementById(`prev_${currentKey}`);
+      const placeholder = document.getElementById(`ph_${currentKey}`);
+      const badge = document.getElementById(`badge_${currentKey}`);
+
+      preview.src = base64;
+      preview.classList.remove("hidden");
+      if (placeholder) placeholder.classList.add("hidden");
+      if (badge) {
+        badge.classList.remove("bg-slate-300");
+        badge.classList.add("bg-emerald-500");
+      }
+
+      closeCamera();
+    }
+
+    function closeCamera() {
+      if (activeMediaStream) {
+        activeMediaStream.getTracks().forEach(t => t.stop());
+        activeMediaStream = null;
+      }
+      document.getElementById("cameraModal").classList.add("hidden");
+    }
+
+    document.getElementById("inspectionForm").addEventListener("submit", async function(e) {
+      e.preventDefault();
+
+      const requiredKeys = ['frontTire', 'rearTire', 'powertrain', 'brakeFluid', 'lightsBody', 'dashboard'];
+      const missingList = [];
+      const labels = {
+        frontTire: '1. ยางหน้า/ดอกยาง',
+        rearTire: '2. ยางหลัง/น็อตล้อ',
+        powertrain: '3. ห้องเครื่อง หรือ แบต/HV',
+        brakeFluid: '4. น้ำมันเบรก/หม้อลม',
+        lightsBody: '5. สภาพรอบคัน/ไฟรอบ',
+        dashboard: '6. หน้าปัดไมล์/ไฟเตือน'
+      };
+
+      for (let k of requiredKeys) {
+        if (!capturedImages[k]) {
+          missingList.push(labels[k]);
+        }
+      }
+
+      if (missingList.length > 0) {
+        Swal.fire({
+          icon: 'warning',
+          title: 'ภาพถ่ายสดไม่ครบ',
+          html: `<p class="text-sm mb-2">กรุณาถ่ายภาพสดให้ครบทั้ง 6 จุดตามมาตรฐาน:</p><ul class="text-xs text-red-600 text-left list-disc list-inside space-y-1">${missingList.map(item => `<li>${item}</li>`).join('')}</ul>`,
+          confirmButtonColor: '#f59e0b'
+        });
+        return;
+      }
+
+      // เตือนกรณีไม่ได้ตั้งค่า SCRIPT_URL
+      if (SCRIPT_URL.includes("replace-with-your-url")) {
+        Swal.fire({
+          icon: 'info',
+          title: 'แจ้งเตือนการเชื่อมต่อ',
+          text: 'กรุณาระบุ URL ของ Google Apps Script ที่ Deploy แล้วในโค้ด SCRIPT_URL ของ index.html',
+          confirmButtonColor: '#f59e0b'
+        });
+        return;
+      }
+
+      Swal.fire({
+        title: 'กำลังตรวจสอบข้อมูล',
+        text: 'กำลังอัปโหลดรูปภาพและบันทึกข้อมูลเข้า Google Drive & Google Sheet...',
+        allowOutsideClick: false,
+        didOpen: () => Swal.showLoading()
+      });
+
+      // รวบรวม Checklist
+      const checklist = {};
+      document.querySelectorAll('#checklistContainer input[type="checkbox"]').forEach(chk => {
+        checklist[chk.name] = chk.checked ? "ปกติ" : "ผิดปกติ";
+      });
+
+      const payload = {
+        email: document.getElementById("driverEmail").value.trim(),
+        vehiclePlate: document.getElementById("vehiclePlate").value.trim(),
+        odometer: document.getElementById("odometer").value.trim(),
+        vehicleType: currentVehicleType === "ICE" ? "ICE (ดีเซล/น้ำมัน)" : "EV (ไฟฟ้า)",
+        overallStatus: document.getElementById("overallStatus").value,
+        defectsNote: document.getElementById("defectsNote").value.trim(),
+        checklist: checklist,
+        images: capturedImages
+      };
+
+      try {
+        const res = await fetch(SCRIPT_URL, {
+          method: "POST",
+          headers: {
+            "Content-Type": "text/plain;charset=utf-8"
+          },
+          body: JSON.stringify(payload)
+        });
+        const result = await res.json();
+
+        if (result.status === "success") {
+          Swal.fire({
+            icon: 'success',
+            title: 'บันทึกการตรวจรถเรียบร้อย',
+            html: `พนักงานขับรถ: <b>${result.driverName}</b><br><span class="text-xs text-slate-500">ข้อมูลและภาพถูกจัดเก็บเข้าสู่ระบบเรียบร้อย</span>`,
+            confirmButtonColor: '#f59e0b'
+          }).then(() => {
+            location.reload();
+          });
+        } else {
+          Swal.fire({
+            icon: 'error',
+            title: 'ไม่สามารถบันทึกได้',
+            text: result.message,
+            confirmButtonColor: '#f59e0b'
+          });
+        }
+      } catch (err) {
+        Swal.fire({
+          icon: 'error',
+          title: 'การเชื่อมต่อขัดข้อง',
+          text: 'ไม่สามารถติดต่อ Google Apps Script Backend ได้ โปรดตรวจสอบการ Deploy Web App และการเชื่อมต่ออินเทอร์เน็ต',
+          confirmButtonColor: '#f59e0b'
+        });
+      }
+    });
+  </script>
+</body>
+</html>
