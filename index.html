@@ -115,6 +115,7 @@
       <button onclick="promptChangeDriver()" class="flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-slate-900/90 border border-cyan-800/50 hover:border-cyan-400 transition text-[11px] font-mono shadow" title="คลิกเพื่อเปลี่ยนพนักงานขับรถ">
         <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
         <span id="driverNameTxt" class="text-white font-bold truncate max-w-[110px] sm:max-w-none">นายทวีศักดิ์</span>
+        <span id="driverIdTxt" class="text-cyan-300 font-bold bg-slate-800 px-1 py-0.2 rounded text-[10px]">DRV-999</span>
         <span id="driverPlateTxt" class="text-amber-400 font-bold hidden sm:inline">70-8899</span>
       </button>
 
@@ -1358,9 +1359,13 @@
 
     function updateDriverHeaderUI() {
       if (!registeredDriver) return;
-      document.getElementById('driverNameTxt').innerText = registeredDriver.name;
-      document.getElementById('driverIdTxt').innerText = registeredDriver.id;
-      document.getElementById('driverPlateTxt').innerText = registeredDriver.plate;
+      const nameEl = document.getElementById('driverNameTxt');
+      const idEl = document.getElementById('driverIdTxt');
+      const plateEl = document.getElementById('driverPlateTxt');
+
+      if (nameEl) nameEl.innerText = registeredDriver.name;
+      if (idEl) idEl.innerText = registeredDriver.id;
+      if (plateEl) plateEl.innerText = registeredDriver.plate;
     }
 
     // --- Final Report & Submit ---
