@@ -47,7 +47,7 @@
 
   <style>
     body {
-      background-color: #050811;
+      background-color: #1e293b;
       overflow-x: hidden;
       user-select: none;
       -webkit-tap-highlight-color: transparent;
@@ -686,8 +686,9 @@
     function init3DScene() {
       const container = document.getElementById('canvas-container');
       scene = new THREE.Scene();
-      scene.background = new THREE.Color(0x050811);
-      scene.fog = new THREE.FogExp2(0x050811, 0.04);
+      // ปรับพื้นหลัง 3D เป็นโทนสลัวสว่าง ชัดเจน มองง่ายแม้อยู่กลางแจ้ง (Slate Sky / Tech Studio)
+      scene.background = new THREE.Color(0x1e293b);
+      scene.fog = new THREE.FogExp2(0x1e293b, 0.025);
 
       camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 100);
       camera.position.set(7.5, 4.0, 7.5);
@@ -707,23 +708,30 @@
       controls.maxDistance = 16;
       controls.target.set(0, 1.2, 0);
 
-      // Lights
-      const ambientLight = new THREE.AmbientLight(0xffffff, 0.65);
+      // Lights: ปรับแสงใหม่อารมณ์สตูดิโอกลางวัน สว่างชัดเจน ไม่มืดทึบ
+      const ambientLight = new THREE.AmbientLight(0xf1f5f9, 0.95);
       scene.add(ambientLight);
 
-      const dirLight = new THREE.DirectionalLight(0xffffff, 0.95);
-      dirLight.position.set(10, 15, 10);
+      // แสงหลักพระอาทิตย์/สปอตไลท์บน
+      const dirLight = new THREE.DirectionalLight(0xffffff, 1.25);
+      dirLight.position.set(12, 18, 12);
       dirLight.castShadow = true;
       dirLight.shadow.mapSize.width = 2048;
       dirLight.shadow.mapSize.height = 2048;
       scene.add(dirLight);
 
-      const cyanRimLight = new THREE.PointLight(0x00f2fe, 1.4, 20);
-      cyanRimLight.position.set(-6, 4, -6);
+      // แสงสะท้อนล่าง/ข้าง (Fill light) เพื่อให้ใต้ท้องรถและล้อไม่ดำมืด
+      const fillLight = new THREE.DirectionalLight(0x94a3b8, 0.6);
+      fillLight.position.set(-10, -5, -10);
+      scene.add(fillLight);
+
+      // Cyan Tech Rim Light เสริมมิติ
+      const cyanRimLight = new THREE.PointLight(0x38bdf8, 1.2, 25);
+      cyanRimLight.position.set(-6, 5, -6);
       scene.add(cyanRimLight);
 
-      // Sci-Fi Hologram Ground Grid
-      const gridHelper = new THREE.GridHelper(30, 30, 0x00f2fe, 0x16233b);
+      // Ground Grid: ปรับให้สีสว่างเข้ากับพื้นหลัง ไม่มืดทึบ
+      const gridHelper = new THREE.GridHelper(30, 30, 0x38bdf8, 0x475569);
       gridHelper.position.y = 0;
       scene.add(gridHelper);
 
@@ -740,10 +748,10 @@
       if (truckGroup) scene.remove(truckGroup);
       truckGroup = new THREE.Group();
 
-      const cabinMat = new THREE.MeshStandardMaterial({ color: 0x1e293b, metalness: 0.7, roughness: 0.25 });
-      const cargoMat = new THREE.MeshStandardMaterial({ color: 0xf8fafc, metalness: 0.1, roughness: 0.6 });
-      const chassisMat = new THREE.MeshStandardMaterial({ color: 0x0f172a, metalness: 0.8, roughness: 0.5 });
-      const glassMat = new THREE.MeshPhysicalMaterial({ color: 0x082f49, metalness: 0.1, roughness: 0.1, transmission: 0.75, transparent: true });
+      const cabinMat = new THREE.MeshStandardMaterial({ color: 0x334155, metalness: 0.5, roughness: 0.3 });
+      const cargoMat = new THREE.MeshStandardMaterial({ color: 0xffffff, metalness: 0.1, roughness: 0.5 });
+      const chassisMat = new THREE.MeshStandardMaterial({ color: 0x1e293b, metalness: 0.7, roughness: 0.5 });
+      const glassMat = new THREE.MeshPhysicalMaterial({ color: 0x0284c7, metalness: 0.1, roughness: 0.1, transmission: 0.7, transparent: true });
       const wheelRubberMat = new THREE.MeshStandardMaterial({ color: 0x111827, roughness: 0.9 });
       const rimMat = new THREE.MeshStandardMaterial({ color: 0x94a3b8, metalness: 0.9, roughness: 0.2 });
 
